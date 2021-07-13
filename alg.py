@@ -147,17 +147,29 @@ else:
     r_ = r_max - R[N-1][l_max]
     depth_sched = [l_cur]
     reward_sched = [R[N-1][l_max]]
+    time_sched = [T[N-1][l_max]]
     for i in range(N-2, -1, -1):
         l_cur = S[i][r_]
         r_ = r_ - R[i][l_cur]
         depth_sched.insert(0, l_cur)
         reward_sched.insert(0, R[i][l_cur])
+        time_sched.insert(0, T[i][l_cur])
 
 # Print out the solution schedule that was found
 print("Schedule that achieves reward", r_max, "  ")
 print(str(depth_sched)+"  ")
 print("with corresponding rewards for each task:"+"  ")
 print(str(reward_sched)+"  ")
+print("corresponding times for each task:"+"  ")
+print(str(time_sched)+"  ")
+print("or cumulatively:"+"  ")
+cum = []
+for time in time_sched:
+    if len(cum) > 0:
+        cum.append(cum[-1] + time)
+    else:
+        cum.append(time)
+print(str(cum)+"  ")
 
 
 
