@@ -10,9 +10,10 @@ class Scheduler:
                 do_work(task)
 
     def add_task(self, task):
+        print(self.tasks)
         self.tasks.append(task)
+        print(self.tasks)
 
 
 def do_work(task):
-    print(task)
-    time.sleep(5)
+    time.sleep(2)
