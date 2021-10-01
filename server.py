@@ -1,17 +1,32 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import os
+from scheduler import Scheduler
+from task import Task
+from stage import Stage
+from flask import Flask
 
-port = 8000
-def run_scheduler_tasks(schedule):
-    schedule.run_tasks()
+app = Flask(__name__)
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
+scheduler = Scheduler()
 
-        message = "GET RESPONSE"
-        self.wfile.write(bytes(message, "utf8"))
+def create_new_task(job, deadline):
+    stage_files_list = os.listdir("tasks/" + "task" + job)
+    stage_files_list.sort()
+    stage_list = []
+    for stage_file in stage_files_list:
+        stage = Stage(stage_file, 0, 0, 0)
+        stage_list.append(stage)
 
-with HTTPServer(('', port), handler) as server:
-    server.serve_forever()
+    task = Task(stage_list, 0, deadline, "task"+job)
+    return task
+
+@app.route("/<job>,<deadline>")
+def home(job, deadline):
+    """ Function for test purposes. """
+    task = create_new_task(job, deadline)
+    scheduler.add_task(task)
+    return "Adding job" + str(job) + "deadline" + str(deadline)
+
+
+if __name__ == "__main__":
+    scheduler.start_scheduler(1)
+    app.run()
