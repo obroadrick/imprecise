@@ -3,10 +3,12 @@ from scheduler import Scheduler
 from task import Task
 from stage import Stage
 from flask import Flask
+from runner import Runner
 
 app = Flask(__name__)
 
 scheduler = Scheduler()
+runner = Runner()
 
 def create_new_task(job, deadline):
     stage_files_list = os.listdir("tasks/" + "task" + job)
@@ -29,4 +31,5 @@ def home(job, deadline):
 
 if __name__ == "__main__":
     scheduler.start_scheduler(1)
+    runner.start_runner(scheduler)
     app.run()

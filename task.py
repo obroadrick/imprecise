@@ -5,7 +5,7 @@ class Task:
         self.priority = priority
         self.deadline = deadline
         self.name = name
-        self.level = 0
+        self.level = 2
 
     def set_optimal_level(self, level):
         """Method for setting optimal level made by the scheduler"""
