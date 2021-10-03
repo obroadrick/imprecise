@@ -1,10 +1,10 @@
-import socket
+import http.client
+import time
+port = 5000
 
-s = socket.socket()
+connection = http.client.HTTPConnection('localhost', port)
 
-port = 8888
-
-s.connect(('127.0.0.1', port))
-
-s.send('Message from client'.encode())
-s.close()
+headers = {'Content-type': 'text/html'}
+for i in range (5):
+    connection.request('GET', '/' + str(i) + ",0", '', headers)
+    connection.getresponse()
