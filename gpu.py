@@ -1,4 +1,24 @@
 import csv
+import numpy
+# import time
+from numba import cuda
+
+# @cuda.reduce
+# def sum_reduce(a, b):
+#     return a + b
+
+# start_time = time.time()
+# while(True):
+#     got = sum_reduce(A)   # cuda sum reduction
+# print("GPU", time.time() - start_time)
+# print(got)
+
+@cuda.reduce
+def sum_reduce(a, b):
+    return a + b
+
+
+
 class GPU:
     """Methods to describe how we will tasks will be ran by the GPU"""
     def run_task(self, task):
@@ -12,11 +32,10 @@ class GPU:
 
     def workload_to_arr(self, stagedir):
         print(stagedir)
-        return list(csv.reader(open(stagedir)))
+        return numpy.genfromtxt(stagedir, delimiter=',', dtype = numpy.float64)
+
 
     def do_work(self, workload):
         work_sum = 0
-        for i in range(len(workload)):
-            for j in range(len(workload[i])):
-                work_sum = work_sum + int(workload[i][j])
-        return work_sum / (len(workload) * len(workload[0]))
+        work_sum = work_sum + sum_reduce(workload)
+        return work_sum / len(workload)
