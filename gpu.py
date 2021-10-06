@@ -20,7 +20,6 @@ def sum_reduce(a, b):
 
 
 class GPU:
-    """Methods to describe how we will tasks will be ran by the GPU"""
     def run_task(self, task):
         ans = 0
         for i in range(task.level):
