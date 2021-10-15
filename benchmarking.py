@@ -29,17 +29,25 @@ class Time:
         self.label = label
     
     #start timer
-    def startTime(self):
+    def startClock(self):
         self.startTime = timeit.timeit()
 
     #stop timer and add data to csv
-    def endTime(self):
+    def endClock(self):
         self.endTime = timeit.timeit()
-        runData = [self.label, self.startTime, self.endTime, self.endTime - self.startTime]
+        timeElapsed = self.endTime - self.startTime
+        runData = [self.label, self.startTime, self.endTime, timeElapsed]
         with open('benchData/time.csv', 'a') as f:
             writer = csv.writer(f)
             
             writer.writerow(runData)
+
+    def resetCSV(self):
+        header = ['Section','Start Time','End Time','Time Elapsed']
+        with open('benchData/time.csv' , 'w') as f:
+            writer = csv.writer(f)
+            
+            writer.writerow(header)
 
         
     
