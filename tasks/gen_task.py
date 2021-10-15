@@ -12,6 +12,12 @@ def random_2d():
             arr[i].append(random.randint(1, 9))
     return arr
 
+def random_1d():
+    n = random.randint(500, 100 * 100)
+    arr = []
+    for i in range (n):
+        arr.append(random.uniform(1,9))
+    return arr
 
 random.seed(time.time())
 for i in range (5):
@@ -20,4 +26,4 @@ for i in range (5):
     for j in range (stageNum):
         with open("task"+str(i) + "/stage" + str(j), "w+") as stage_csv:
             csv_write = csv.writer(stage_csv, delimiter=',')
-            csv_write.writerows(random_2d())
+            csv_write.writerow(random_1d())

@@ -10,7 +10,7 @@ class Scheduler:
         if len(self.task_q) > 0:
             self.run_arr.append(self.task_q.pop(-1))
 
-        #TODO
+        #TODO @obroadrick
     def start_scheduler(self, time_seconds):
         """Server calls this to start the scheduler"""
         sched = BackgroundScheduler(daemon=True)
