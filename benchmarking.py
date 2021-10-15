@@ -3,25 +3,29 @@ import timeit
 import csv
 
 class Graph:
-    xvals = []
-    yvals = []
+    #static 2d array to store data
+    taskData = [[],[],[],[],[]]
 
     #initialize function to start our graph
-    def __init__(self, xlabel, ylabel):
-        self.xlabel = xlabel
-        self.ylabel = ylabel
+    def __init__(self):
+        self.title = 'Tasks per Request vs Average Reward'
 
-    #add data point for the graph
+    #add data point for the graph. Use x to specify the tasks per request
     def addPoint(self, x, y):
-        xvals.append(x)
-        yvals.append(y)
+        taskData[x].append(y)
 
-    #plot graph when finished
-    def plot(self):
+    #plot graph when finished, export to benchData
+    def plot(self, numTasks):
+        xvals = []
+        yvals = []
+        for x in range(0, numTasks):
+            xvals.append(x)
+            yvals.append(sum(taskData(x))/len(taskData(x)))
         plt.plot(xvals,yvals)
-        plt.xlabel(self.xlabel)
-        plt.ylabel(self.ylabel)
-        plt.show()
+        plt.xlabel('Tasks per Request')
+        plt.ylabel('Average Reward')
+        plt.title(self.title)
+        plt.savefig('benchData/taskVreward.png')
 
 class Time:
     #initialize function to give label
@@ -39,14 +43,13 @@ class Time:
         runData = [self.label, self.startTime, self.endTime, timeElapsed]
         with open('benchData/time.csv', 'a') as f:
             writer = csv.writer(f)
-            
             writer.writerow(runData)
 
+    #reset CSV file
     def resetCSV(self):
         header = ['Section','Start Time','End Time','Time Elapsed']
         with open('benchData/time.csv' , 'w') as f:
             writer = csv.writer(f)
-            
             writer.writerow(header)
 
         
