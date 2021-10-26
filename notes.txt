@@ -1,0 +1,8 @@
+    ##########################################################################################################
+    ### TODO ensure that inputs are valid (types, sizes, etc)
+    ### TODO ensure sorted tasks (either here or there)
+    ### TODO ensure compatable return format
+    ### TODO establish how to handle an unsolvable input set (ie. no viable schedule exists)
+    ##########################################################################################################
+
+
