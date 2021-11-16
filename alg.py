@@ -33,7 +33,7 @@ class Algorithm():
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     depth_sched = []
 
-    def __init__():
+    def __init__(self):
         """
         The algorithm class will populate the S and P solution tables once 
         tasks are passed (ie. sched is called).
@@ -41,7 +41,7 @@ class Algorithm():
         S = None
         P = None
 
-    def sched(num_tasks, stages, time, prec, prio, dead, verbose=False):
+    def sched(self, num_tasks, stages, time, prec, prio, dead, verbose=False):
         """
         Schedules the passed tasks with associated metadata
 
@@ -53,7 +53,8 @@ class Algorithm():
         dead        dead[i] is the deadline for task i
 
         """
-        # TODO check inputs
+        if not isinstance(num_tasks, int) or num_tasks < 0:
+            perror("num_tasks should be a positive integer")
 
         # Compute the expected rewards for all stages of all tasks
         # R[i][l] is the reward for completing the first l stages of task i before the deadline
@@ -61,13 +62,13 @@ class Algorithm():
         for i in range(num_tasks):
             R.append([None]*stages[i])
             for l in range(stages[i]):
-                R[i][l] = reward(prec[i][l], prio[i])
+                R[i][l] = self.reward(prec[i][l], prio[i])
 
         # Find the solutions to all problems in tables S and P
-        S, P = compute_tables_from_scratch(num_tasks, stages, time, R, dead)
+        S, P = self.compute_tables_from_scratch(num_tasks, stages, time, R, dead)
 
         # Find optimal depths from the completed tables
-        depth_sched, reward_sched, time_sched = find_optimal_depths_from_tables(S, P, R, time)
+        depth_sched, reward_sched, time_sched = self.find_optimal_depths_from_tables(S, P, R, time)
 
         # If verbose, print out the solution schedule that was found... messily for now... 
         if verbose:
@@ -89,7 +90,7 @@ class Algorithm():
         # Return the depth schedule (the only item relevant to the server)
         return depth_sched
 
-    def compute_tables_from_scratch(num_tasks, stages, time, R, dead):
+    def compute_tables_from_scratch(self, num_tasks, stages, time, R, dead):
         """
         Computes the solutions to S and P (tables as described by Yao et al)
 
@@ -195,7 +196,7 @@ class Algorithm():
         # Return the completed tables
         return S, P
 
-    def find_optimal_depths_from_tables(S, P, R, time):
+    def find_optimal_depths_from_tables(self, S, P, R, time):
         """
         Now that the tables are completed, we find the optimal path using the tables
         First we need to answer the following question about the last (latest deadline) task:
@@ -241,10 +242,12 @@ class Algorithm():
                 reward_sched.insert(0, R[i][l_cur])
                 time_sched.insert(0, time[i][l_cur])
 
-        assert sum(reward_sched) == r_max
+        # depth_sched is a list of the depths to which each task should be run
+        # reward_sched is a list of corresponding marginal rewards
+        # time_sched is a list of corresponding marginal runtimes
         return depth_sched, reward_sched, time_sched
 
-    def reward(prec, prio):
+    def reward(self, prec, prio):
         # NOTE this is a good place to play and have fun!
         """
         Computes reward as a function of the precision and priority.
@@ -253,7 +256,7 @@ class Algorithm():
         # TODO check inputs
         return prec * prio
 
-    def printSP(S, P):
+    def printSP(self, S, P):
         """ 
         A scrappy function for printing the S and P tables for debugging.
 

@@ -5,7 +5,8 @@ At least at first, a short script that works through a toy example.
 Ultimately, we will have unit tests for exceptions and known results.
 """
 
-from alg import sched
+from alg import Algorithm
+
 
 
 """ TEST THE CODE ON SOME SIMPLE INPUTS! """
@@ -48,6 +49,7 @@ for i in range(len(dead)):
 # call sched for these inputs
 verbose = True
 print("\n\nSOLUTION:")
-sched(num_tasks, stages, time, prec, prio, dead, verbose)
+a = Algorithm()
+a.sched(num_tasks, stages, time, prec, prio, dead, verbose)
 print("")
 
