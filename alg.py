@@ -53,8 +53,25 @@ class Algorithm():
         dead        dead[i] is the deadline for task i
 
         """
+        # Check for correct inputs
         if not isinstance(num_tasks, int) or num_tasks < 0:
-            perror("num_tasks should be a positive integer")
+            raise ValueError("num_tasks should be a positive integer")
+        if not len(stages) == num_tasks:
+            raise ValueError("stages should have length num_tasks")
+        if not len(time) == num_tasks:
+            raise ValueError("time should have length num_tasks")
+        for task_idx, time_list in enumerate(time):
+            if not len(time_list) == stages[task_idx]:
+                raise ValueError("time[i] should have length stages[i]")
+        for task_idx, prec_list in enumerate(prec):
+            if not len(prec_list) == stages[task_idx]:
+                raise ValueError("prec[i] should have length stages[i]")
+        if not len(prec) == num_tasks:
+            raise ValueError("prec should have length num_tasks")
+        if not len(prio) == num_tasks:
+            raise ValueError("prio should have length num_tasks")
+        if not len(dead) == num_tasks:
+            raise ValueError("dead should have length num_tasks")
 
         # Compute the expected rewards for all stages of all tasks
         # R[i][l] is the reward for completing the first l stages of task i before the deadline
@@ -68,10 +85,13 @@ class Algorithm():
         S, P = self.compute_tables_from_scratch(num_tasks, stages, time, R, dead)
 
         # Find optimal depths from the completed tables
-        depth_sched, reward_sched, time_sched = self.find_optimal_depths_from_tables(S, P, R, time)
+        depth_sched, reward_sched, time_sched = self.find_optimal_depths_from_tables(S, P, R, time, verbose)
 
         # If verbose, print out the solution schedule that was found... messily for now... 
         if verbose:
+            if depth_sched == None:
+                print("No viable schedule for these inputs")
+                return None
             print("Schedule that achieves reward", sum(reward_sched), "  ")
             print(str(depth_sched)+"  ")
             print("with corresponding rewards for each task:"+"  ")
@@ -102,7 +122,23 @@ class Algorithm():
 
         returns S, P the completed tables
         """
-        # TODO check inputs
+        # Check for correct inputs
+        if not isinstance(num_tasks, int) or num_tasks < 0:
+            raise ValueError("num_tasks should be a positive integer")
+        if not len(stages) == num_tasks:
+            raise ValueError("stages should have length num_tasks")
+        if not len(time) == num_tasks:
+            raise ValueError("time should have length num_tasks")
+        for task_idx, time_list in enumerate(time):
+            if not len(time_list) == stages[task_idx]:
+                raise ValueError("time[i] should have length stages[i]")
+        for task_idx, R_list in enumerate(R):
+            if not len(R_list) == stages[task_idx]:
+                raise ValueError("R[i] should have length stages[i]")
+        if not len(dead) == num_tasks:
+            raise ValueError("dead should have length num_tasks")
+
+
         # Establish shorthand for num_tasks
         N = num_tasks
 
@@ -173,7 +209,7 @@ class Algorithm():
                     # achieves the remainder of the reward, for a total of r still
                     elif R[i][l] < r:
                         # r_ is the remaining portion of r
-                        r_ = r - R[i][l]
+                        r_ = int(r - R[i][l])
                         # If the preceding task can earn the remaining portion of r
                         if S[i-1][r_] is not None:
                             # If this is the first sufficient depth, is is the current winner
@@ -196,7 +232,7 @@ class Algorithm():
         # Return the completed tables
         return S, P
 
-    def find_optimal_depths_from_tables(self, S, P, R, time):
+    def find_optimal_depths_from_tables(self, S, P, R, time, verbose=False):
         """
         Now that the tables are completed, we find the optimal path using the tables
         First we need to answer the following question about the last (latest deadline) task:
@@ -207,7 +243,8 @@ class Algorithm():
         R       rewards
         time    time table
         """
-        # TODO check inputs
+        # Assume S, P, and R are correct since they are generated internally.
+
         N = len(S)
 
         i = N - 1
@@ -223,10 +260,7 @@ class Algorithm():
 
         # If there is not possible order for this task... this is an unschedulable set of inputs
         if l_max is None:
-            if verbose:
-                # Indicate that no solution exists for these inputs
-                print("No schedule for you... give nicer inputs"+"  ")
-            return None #NOTE this is where we will make changes to handle an unschedulable input set
+            return None, None, None#NOTE this is where we will make changes to handle an unschedulable input set
         else:
             # Now we construct the optimal schedule
             l_cur = l_max
@@ -253,7 +287,12 @@ class Algorithm():
         Computes reward as a function of the precision and priority.
         For prec, prio in [0,1], computes prec * prio.
         """
-        # TODO check inputs
+        # For this implementation or reward, each prec and prio should be in [0,1)
+        if prec < 0 or prec >= 1:
+            raise ValueError("precision {} should have: 0 <= p < 1".format(prec))
+        if prio < 0 or prio > 1:
+            raise ValueError("priority {} should have: 0 <= p <= 1".format(prio))
+
         return prec * prio
 
     def printSP(self, S, P):
@@ -263,7 +302,7 @@ class Algorithm():
         S   S[i][r] is the solution to S(i,r) as defined by Yao et al
         P   P[i][r] is the solution to P(i,r) as defined by Yao et al
         """
-        # TODO check inputs
+        # Assume S and P are correct since they are generated internally.
         print("\n")
         for i in range(len(S)):
             if S[i] == POS_INF:
