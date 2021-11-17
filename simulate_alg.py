@@ -2,6 +2,7 @@
 Script for simulating use of scheduling algorithm in alg.py.
 
 At first, we assume that the times, precisions, and priorities are uniform [0,1].
+Deadlines all 1 (end of current period).
 """
 
 from alg import Algorithm
@@ -12,7 +13,7 @@ rand.seed(511)
 
 
 # num_tasks is the number of tasks
-num_tasks = 4 #rand.randint(2,10)
+num_tasks = 4 #rand.randint(2,10) # at some point...
 
 # stages[i] is the number of stages for task i
 stages = [8] * num_tasks
@@ -53,16 +54,16 @@ prio = [1]*num_tasks
 # print the inputs
 print("\nINPUTS:")
 print(num_tasks,"tasks with",stages,"stages")
-print("with expected runtimes")
+print("\nWith expected runtimes:")
 for i in range(len(time)):
     print(i,":",time[i])
-print("with expected precisions")
+print("\nWith expected precisions:")
 for i in range(len(prec)):
     print(i,":",prec[i])
-print("with priorities")
+print("\nWith priorities:")
 for i in range(len(prio)):
     print(i,":",prio[i])
-print("with deadlines")
+print("\nWith deadlines:")
 for i in range(len(dead)):
     print(i,":",dead[i])
 
