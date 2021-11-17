@@ -33,13 +33,14 @@ class Algorithm():
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     depth_sched = []
 
-    def __init__(self):
+    def __init__(self, yao=False):
         """
         The algorithm class will populate the S and P solution tables once 
         tasks are passed (ie. sched is called).
         """
-        S = None
-        P = None
+        self.yao = yao
+        self.S = None
+        self.P = None
 
     def sched(self, num_tasks, stages, time, prec, prio, dead, verbose=False):
         """
@@ -73,26 +74,48 @@ class Algorithm():
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
 
+        # delta is the basic increment of reward
+        # NOTE this is a good place to play and have fun!
+        delta = .2
+
         # Compute the expected rewards for all stages of all tasks
         # R[i][l] is the reward for completing the first l stages of task i before the deadline
         R = []
         for i in range(num_tasks):
             R.append([None]*stages[i])
             for l in range(stages[i]):
-                R[i][l] = self.reward(prec[i][l], prio[i])
+                reward = self.reward(prec[i][l], prio[i])
+                R[i][l] = self.quantize(reward, delta)
+
+        # TODO add a sanity check here that R[i][l] is weakly decreasing WRT l for all i
+
+        if verbose:
+            # Sanity check:
+            print("R:")
+            for i, r_list in enumerate(R):
+                line = ""
+                for j, r in enumerate(r_list):
+                    line += " "+str(r)
+                print(line)
 
         # Find the solutions to all problems in tables S and P
-        S, P = self.compute_tables_from_scratch(num_tasks, stages, time, R, dead)
+        if not self.compute_tables_from_scratch(num_tasks, stages, time, R, dead, delta):
+            print('Error in compute_tables_from_scratch')
+            exit()
+
+        if verbose:
+            # Sanity check:
+            self.printSP()
 
         # Find optimal depths from the completed tables
-        depth_sched, reward_sched, time_sched = self.find_optimal_depths_from_tables(S, P, R, time, verbose)
+        depth_sched, reward_sched, time_sched = self.find_optimal_depths_from_tables(R, time, verbose)
 
         # If verbose, print out the solution schedule that was found... messily for now... 
         if verbose:
             if depth_sched == None:
                 print("No viable schedule for these inputs")
                 return None
-            print("Schedule that achieves reward", sum(reward_sched), "  ")
+            print("Depth schedule that achieves reward", sum(reward_sched), "  ")
             print(str(depth_sched)+"  ")
             print("with corresponding rewards for each task:"+"  ")
             print(str(reward_sched)+"  ")
@@ -110,15 +133,16 @@ class Algorithm():
         # Return the depth schedule (the only item relevant to the server)
         return depth_sched
 
-    def compute_tables_from_scratch(self, num_tasks, stages, time, R, dead):
+    def compute_tables_from_scratch(self, num_tasks, stages, time, R, dead, delta):
         """
         Computes the solutions to S and P (tables as described by Yao et al)
 
         num_tasks   number of tasks
         stages      stages[i] is number of stages for task i
         time        time[i][l] is the expected runtime for the first l stages of task i (cumulative)
-        R           R[i][l] is the expected reward for the first l stages of task i (cumulative)
+        R           R[i][l] is the expected reward for the first l stages of task i (cumulative)(quantized)
         dead        dead[i] is the deadline for task i
+        delta       delta is the basic increment of reward used for quantization of the reward space
 
         returns S, P the completed tables
         """
@@ -138,25 +162,18 @@ class Algorithm():
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
 
-
-        # Establish shorthand for num_tasks
+        # Establish shorthand variable names
         N = num_tasks
 
-        # Rmax is the maximum possible reward for a single task
-        Rmax = max(max(R[i]) for i in range(len(R)))
-
-        # delta is the basic increment of reward
-        # NOTE this is a good place to play and have fun!
-        delta = Rmax / 10
-
-        # Compute useful constant
-        Rmax_quantized = int(N*math.floor(Rmax/delta))
+        # Rmax_quantized is the maximum possible reward for a single task (quantized)
+        Rmax_quantized = int(math.floor(max(max(R[i]) for i in range(len(R)))))
+        print("Rmax_quantized: {}".format(Rmax_quantized))
 
         # S[i][r] is the depth to which task i should be computed to optimally achieve exactly reward r*delta
-        S = [[None for r in range(Rmax_quantized)] for i in range(N)]
+        self.S = [[None for r in range(Rmax_quantized)] for i in range(N)]
 
         # P[i][r] is the time required to carry out the schedule implied by S[i][r]
-        P = [[POS_INF for r in range(Rmax_quantized)] for i in range(N)]
+        self.P = [[POS_INF for r in range(Rmax_quantized)] for i in range(N)]
 
         # Start by solving the first row of the table (first task)
         i = 0
@@ -179,11 +196,13 @@ class Algorithm():
                         winning_t = time[i][l]
             # Update this cell in S and P as long as the winning time abides by the task's deadline
             if winning_l is not None and winning_t <= dead[i]:
-                S[i][r] = winning_l
-                P[i][r] = winning_t
+                self.S[i][r] = winning_l
+                self.P[i][r] = winning_t
 
+        """
         # Sanity check
-        #printSP(S,P)
+        self.printSP()
+        """
 
         # Now for subsequent tasks we apply the same operations
         for i in range(1, N):
@@ -211,41 +230,41 @@ class Algorithm():
                         # r_ is the remaining portion of r
                         r_ = int(r - R[i][l])
                         # If the preceding task can earn the remaining portion of r
-                        if S[i-1][r_] is not None:
+                        if self.S[i-1][r_] is not None:
                             # If this is the first sufficient depth, is is the current winner
                             if winning_l is None:
                                 winning_l = l
-                                winning_t = time[i][l] + P[i-1][r_]
+                                winning_t = time[i][l] + self.P[i-1][r_]
                             # If the time to achieve this depth does so in less time than the current winner
-                            elif time[i][l] + P[i-1][r_] < winning_t:
+                            elif time[i][l] + self.P[i-1][r_] < winning_t:
                                 winning_l = l
-                                winning_t = time[i][l] + P[i-1][r_]
+                                winning_t = time[i][l] + self.P[i-1][r_]
              
                 # Update this cell in S and P as long as the winning time is less than the deadline for this task
                 if winning_l is not None and winning_t <= dead[i]:
-                    S[i][r] = winning_l
-                    P[i][r] = winning_t
+                    self.S[i][r] = winning_l
+                    self.P[i][r] = winning_t
 
+        """
         # Sanity check
-        #printSP(S,P)
+        self.printSP()
+        """
 
-        # Return the completed tables
-        return S, P
+        # Return True on success
+        return True
 
-    def find_optimal_depths_from_tables(self, S, P, R, time, verbose=False):
+    def find_optimal_depths_from_tables(self, R, time, verbose=False):
         """
         Now that the tables are completed, we find the optimal path using the tables
         First we need to answer the following question about the last (latest deadline) task:
         which depth/layer achieves the highest reward with runtime sufficient to meet the deadline?
 
-        S       S table
-        P       P table
         R       rewards
         time    time table
         """
         # Assume S, P, and R are correct since they are generated internally.
 
-        N = len(S)
+        N = len(self.S)
 
         i = N - 1
         # l_max is the optimal layer as described above
@@ -253,14 +272,15 @@ class Algorithm():
         # r_max is the corresponding quantized reward
         r_max = None
         # For each reward for this task
-        for r in range(len(S[i])):
-            if S[i][r] is not None:
+        for r in range(len(self.S[i])):
+            if self.S[i][r] is not None:
                 r_max = r
-                l_max = S[i][r]
+                l_max = self.S[i][r]
 
         # If there is not possible order for this task... this is an unschedulable set of inputs
         if l_max is None:
-            return None, None, None#NOTE this is where we will make changes to handle an unschedulable input set
+            #NOTE this is where we will make changes to handle an unschedulable input set
+            return None, None, None
         else:
             # Now we construct the optimal schedule
             l_cur = l_max
@@ -270,7 +290,7 @@ class Algorithm():
             reward_sched = [R[N-1][l_max]]
             time_sched = [time[N-1][l_max]]
             for i in range(N-2, -1, -1):
-                l_cur = S[i][r_]
+                l_cur = self.S[i][r_]
                 r_ = r_ - R[i][l_cur]
                 depth_sched.insert(0, l_cur)
                 reward_sched.insert(0, R[i][l_cur])
@@ -293,9 +313,18 @@ class Algorithm():
         if prio < 0 or prio > 1:
             raise ValueError("priority {} should have: 0 <= p <= 1".format(prio))
 
+        if self.yao:
+            # Ignore priority
+            return prec
         return prec * prio
 
-    def printSP(self, S, P):
+    def quantize(self, reward, delta):
+        """
+        Gives the quantized reward for reward and delta.
+        """
+        return int(math.floor(reward / delta))
+
+    def printSP(self):
         """ 
         A scrappy function for printing the S and P tables for debugging.
 
@@ -303,13 +332,16 @@ class Algorithm():
         P   P[i][r] is the solution to P(i,r) as defined by Yao et al
         """
         # Assume S and P are correct since they are generated internally.
-        print("\n")
+        S = self.S
+        P = self.P
+        print("\nS:")
         for i in range(len(S)):
             if S[i] == POS_INF:
                 s = 'INF'
             else:
                 s = str(S[i])
             print(str(i)+": "+s+"  ")
+        print("P:")
         for i in range(len(P)):
             if P[i] == POS_INF:
                 s = 'INF'

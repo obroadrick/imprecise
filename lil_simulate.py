@@ -9,14 +9,14 @@ from alg import Algorithm
 import numpy as np
 from numpy import random as rand
 
-rand.seed(51122)
+rand.seed(5112)
 
 
 # num_tasks is the number of tasks
 num_tasks = 10 #rand.randint(2,10) # at some point...
 
 # stages[i] is the number of stages for task i
-stages = [5] * num_tasks
+stages = [10] * num_tasks
 
 # time[i][l] is the runtime for the first l stages of task i (cumulative)
 time = []
@@ -75,11 +75,7 @@ for i in range(len(dead)):
 # call sched for these inputs
 verbose = True
 print("\n\nSOLUTION:")
-ours = Algorithm()
-yao = Algorithm(yao=True)
-print("\n\nOURS:")
-ours.sched(num_tasks, stages, time, prec, prio, dead, verbose)
-print("\n\nYAO:")
-yao.sched(num_tasks, stages, time, prec, prio, dead, verbose)
+a = Algorithm()
+a.sched(num_tasks, stages, time, prec, prio, dead, verbose)
 print("")
 
