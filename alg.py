@@ -76,7 +76,7 @@ class Algorithm():
 
         # delta is the basic increment of reward
         # NOTE this is a good place to play and have fun!
-        delta = .2
+        delta = .1
 
         # Compute the expected rewards for all stages of all tasks
         # R[i][l] is the reward for completing the first l stages of task i before the deadline
@@ -170,14 +170,14 @@ class Algorithm():
         print("Rmax_quantized: {}".format(Rmax_quantized))
 
         # S[i][r] is the depth to which task i should be computed to optimally achieve exactly reward r*delta
-        self.S = [[None for r in range(Rmax_quantized)] for i in range(N)]
+        self.S = [[None for r in range(Rmax_quantized+1)] for i in range(N)]
 
         # P[i][r] is the time required to carry out the schedule implied by S[i][r]
-        self.P = [[POS_INF for r in range(Rmax_quantized)] for i in range(N)]
+        self.P = [[POS_INF for r in range(Rmax_quantized+1)] for i in range(N)]
 
         # Start by solving the first row of the table (first task)
         i = 0
-        for r in range(0, Rmax_quantized): # for each level of reward
+        for r in range(Rmax_quantized+1): # for each level of reward
             # We need to find the depth which achieves reward r in minimum time
             # winning_l is that depth
             winning_l = None
@@ -206,7 +206,7 @@ class Algorithm():
 
         # Now for subsequent tasks we apply the same operations
         for i in range(1, N):
-            for r in range(0, Rmax_quantized): # for each level of reward
+            for r in range(Rmax_quantized+1): # for each level of reward
                 # We need to find the depth which achieves reward r in minimum time
                 # winning_l is that depth
                 winning_l = None
@@ -295,6 +295,15 @@ class Algorithm():
                 depth_sched.insert(0, l_cur)
                 reward_sched.insert(0, R[i][l_cur])
                 time_sched.insert(0, time[i][l_cur])
+                if r_ == 0:
+                    # if 0 reward remains, the remaining tasks should all have depth 0
+                    for j in range(i):
+                        # assign remaining tasks 0
+                        depth_sched.insert(0, 0)
+                        reward_sched.insert(0, 0)
+                        time_sched.insert(0, 0)
+                    # then break, since we've built the whole schedule now
+                    break
 
         # depth_sched is a list of the depths to which each task should be run
         # reward_sched is a list of corresponding marginal rewards
