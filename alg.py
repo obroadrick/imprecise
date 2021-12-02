@@ -166,7 +166,8 @@ class Algorithm():
         N = num_tasks
 
         # Rmax_quantized is the maximum possible reward for a single task (quantized)
-        Rmax_quantized = int(math.floor(max(max(R[i]) for i in range(len(R)))))
+        Rmax_quantized_single_task = int(math.floor(max(max(R[i]) for i in range(len(R)))))
+        Rmax_quantized = Rmax_quantized_single_task * N
         print("Rmax_quantized: {}".format(Rmax_quantized))
 
         # S[i][r] is the depth to which task i should be computed to optimally achieve exactly reward r*delta
