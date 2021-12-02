@@ -9,8 +9,7 @@ from alg import Algorithm
 import numpy as np
 from numpy import random as rand
 
-rand.seed(51122)
-
+rand.seed(1)
 
 # num_tasks is the number of tasks
 num_tasks = 10 #rand.randint(2,10) # at some point...
@@ -46,7 +45,7 @@ for task_idx, num_stages in enumerate(stages):
 # (we assume we begin running at time 0, so D[i] is the maximum permissable runtime before task i must have been run)
 # Note that these are weakly increasing as per requirement of the algorithm
 # For now, let all the deadlines be the one second period
-dead = [1]*num_tasks
+dead = [5]*num_tasks
 
 # the priority associated with each task
 # Sample a uniform priority too
