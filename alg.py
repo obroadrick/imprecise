@@ -67,10 +67,10 @@ class Algorithm():
         if not len(time) == num_tasks:
             raise ValueError("time should have length num_tasks")
         for task_idx, time_list in enumerate(time):
-            if not len(time_list) == stages[task_idx]:
+            if not len(time_list) == stages[task_idx] + 1:
                 raise ValueError("time[i] should have length stages[i]")
         for task_idx, prec_list in enumerate(prec):
-            if not len(prec_list) == stages[task_idx]:
+            if not len(prec_list) == stages[task_idx] + 1:
                 raise ValueError("prec[i] should have length stages[i]")
         if not len(prec) == num_tasks:
             raise ValueError("prec should have length num_tasks")
@@ -87,8 +87,8 @@ class Algorithm():
         # R[i][l] is the reward for completing the first l stages of task i before the deadline
         R = []
         for i in range(num_tasks):
-            R.append([None]*stages[i])
-            for l in range(stages[i]):
+            R.append([None]*len(prec[i]))
+            for l in range(len(prec[i])):
                 reward = self.reward(prec[i][l], prio[i])
                 R[i][l] = self.quantize(reward, delta)
 
@@ -136,6 +136,7 @@ class Algorithm():
             print(str(cum)+"  ")
 
         # Return the depth schedule (the only item relevant to the server)
+        self.depth_sched = depth_sched
         return depth_sched
 
     def compute_tables_from_scratch(self, num_tasks, stages, time, R, dead, delta):
@@ -159,10 +160,10 @@ class Algorithm():
         if not len(time) == num_tasks:
             raise ValueError("time should have length num_tasks")
         for task_idx, time_list in enumerate(time):
-            if not len(time_list) == stages[task_idx]:
-                raise ValueError("time[i] should have length stages[i]")
+            if not len(time_list) == stages[task_idx] + 1:
+                raise ValueError("time[i] should have length stages[i] + 1")
         for task_idx, R_list in enumerate(R):
-            if not len(R_list) == stages[task_idx]:
+            if not len(R_list) == stages[task_idx] + 1:
                 raise ValueError("R[i] should have length stages[i]")
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
@@ -173,7 +174,6 @@ class Algorithm():
         # Rmax_quantized is the maximum possible reward for a single task (quantized)
         Rmax_quantized_single_task = int(math.floor(max(max(R[i]) for i in range(len(R)))))
         Rmax_quantized = Rmax_quantized_single_task * N
-        print("Rmax_quantized: {}".format(Rmax_quantized))
 
         # S[i][r] is the depth to which task i should be computed to optimally achieve exactly reward r*delta
         self.S = [[None for r in range(Rmax_quantized+1)] for i in range(N)]
@@ -189,7 +189,7 @@ class Algorithm():
             winning_l = None
             # winning_t is the corresponding worst-case runtime
             winning_t = POS_INF
-            for l in range(stages[i]):
+            for l in range(len(time[i])):
                 # If this depth achieves reward r
                 if R[i][l] == r:
                     # If this is the first such task, it is the current winner
@@ -219,7 +219,7 @@ class Algorithm():
                 # winning_t is the corresponding worst-case runtime
                 winning_t = POS_INF
                 # For each possible optimal depth, l
-                for l in range(stages[i]):
+                for l in range(len(time[i])):
                     # If this depth achieves reward r on its own
                     if R[i][l] == r:
                         # If this is the first sufficient depth, it is the current winner
