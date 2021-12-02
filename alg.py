@@ -29,6 +29,9 @@ class Algorithm():
     S = None
     P = None
 
+    # Delta, the basic quantization increment used for the dynamic programming algorithm
+    delta = .1
+
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     depth_sched = []
@@ -39,8 +42,10 @@ class Algorithm():
         tasks are passed (ie. sched is called).
         """
         self.yao = yao
+        # Give some default values to other members
         self.S = None
         self.P = None
+        self.delta = .1
 
     def sched(self, num_tasks, stages, time, prec, prio, dead, verbose=False):
         """
@@ -76,7 +81,7 @@ class Algorithm():
 
         # delta is the basic increment of reward
         # NOTE this is a good place to play and have fun!
-        delta = .1
+        delta = self.delta
 
         # Compute the expected rewards for all stages of all tasks
         # R[i][l] is the reward for completing the first l stages of task i before the deadline
