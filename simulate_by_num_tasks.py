@@ -10,17 +10,19 @@ import matplotlib.pyplot as plt
 
 rand.seed(13456)
 
+num_tasks_list = []
 our_initials = []
 yao_initials = []
 our_maxs = []
 yao_maxs = []
 
-
 num_trials = 100
 
 for i in range(num_trials):
     # num_tasks is the number of tasks
-    num_tasks = 10 # 100, 1000, 10000
+    #num_tasks = 10 # 100, 1000, 10000
+    num_tasks = rand.randint(2, 100) # is inclusive
+    num_tasks_list.append(num_tasks)
 
     # stages[i] is the number of stages for task i
     stages = [3] * num_tasks
@@ -126,30 +128,25 @@ for i in range(num_trials):
     our_maxs.append(our_max)
     yao_maxs.append(yao_max)
 
-x = np.linspace(0,max(our_initials),100)
-y = x
-plt.plot(x, y, '-r', label='y=x')
-plt.legend(loc='upper left')
-plt.plot(yao_initials, our_initials, 'bo')
-plt.xlabel('Unmodified Yao Algorithm')
-plt.ylabel('Algorithm Accounting for Priority')
+plt.plot(num_tasks_list, yao_initials, 'bo', label='Unmodified Yao Algorithm')
+plt.plot(num_tasks_list, our_initials, 'rx', label='Algorithm Accounting for Priority')
+plt.xlabel('Number of Tasks')
+plt.ylabel('Sum of Precisions Weighted by Priorities')
+plt.legend(loc='lower right')
 title = 'Simulation Results Evaluated by Weighted Sum of Precisions'
 plt.title(title)
 plt.grid()
 plt.show()
 
-x = np.linspace(0,max(our_maxs),100)
-y = x
-plt.plot(x, y, '-r', label='y=x')
-plt.legend(loc='upper left')
-plt.plot(yao_maxs, our_maxs, 'bo')
-plt.xlabel('Unmodified Yao Algorithm')
-plt.ylabel('Algorithm Accounting for Priority')
+plt.plot(num_tasks_list, yao_maxs, 'bo', label='Unmodified Yao Algorithm')
+plt.plot(num_tasks_list, our_maxs, 'rx', label='Algorithm Accounting for Priority')
+plt.xlabel('Number of Tasks')
+plt.ylabel('Precision of Maximum Priority Task')
+plt.legend(loc='lower right')
 title = 'Simulation Results Evaluated by Precision of Maximum Priority Task'
 plt.title(title)
 plt.grid()
 plt.show()
-
 
 
 
