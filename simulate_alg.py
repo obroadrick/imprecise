@@ -11,13 +11,21 @@ import matplotlib.pyplot as plt
 rand.seed(134156)
 
 def do_trials(num_trials, dist):
+    # ours is the alg using weighted prec by prio
+    # yao is default yao algorithm
+    # initials means the initial results using the normal metric of weighted sum
+    # maxs is the metric of maximum priority task's precision
     our_initials = []
     yao_initials = []
     our_maxs = []
     yao_maxs = []
+    # we track the number of tasks since it can vary
+    num_tasks_list = []
+
     for i in range(num_trials):
         # num_tasks is the number of tasks
-        num_tasks = 10 # 100, 1000, 10000
+        num_tasks = rand.randint(2, 100) # is inclusive
+        num_tasks_list.append(num_tasks)
 
         # stages[i] is the number of stages for task i
         stages = [3] * num_tasks
@@ -72,7 +80,7 @@ def do_trials(num_trials, dist):
                 prio.append(cur_prio)
         elif dist == 'beta':
             # Sample from a beta distribution (high at 0 and 1, lower in between)
-            a = 1
+            a = .1
             b = .1 # paramters that give desired shape
             for i in range(num_tasks):
                 cur_prio = rand.beta(a, b)
@@ -128,38 +136,64 @@ def do_trials(num_trials, dist):
         yao_initials.append(yao_initial)
         our_maxs.append(our_max)
         yao_maxs.append(yao_max)
-    return our_initials, yao_initials, our_maxs, yao_maxs
+    return num_tasks_list, our_initials, yao_initials, our_maxs, yao_maxs
 
-num_trials = 1000
+beta = True
+#beta = False
+
+num_trials = 100
 dist = 'uniform'
-u_our_initials, u_yao_initials, u_our_maxs, u_yao_maxs = do_trials(num_trials, dist)
-dist = 'beta'
-b_our_initials, b_yao_initials, b_our_maxs, b_yao_maxs = do_trials(num_trials, dist)
+u_num_tasks_list, u_our_initials, u_yao_initials, u_our_maxs, u_yao_maxs = do_trials(num_trials, dist)
+if beta:
+    dist = 'beta'
+    b_num_tasks_list, b_our_initials, b_yao_initials, b_our_maxs, b_yao_maxs = do_trials(num_trials, dist)
 
 # Metric: Weighted sum of prec's by prio's
-x = np.linspace(0,max([max(u_our_initials), max(b_our_initials)]),100)
-y = x
-plt.plot(x, y, '-r', label='y=x')
-plt.plot(u_yao_initials, u_our_initials, 'bo', label='Priority: Uniform', markersize=2)
-plt.plot(b_yao_initials, b_our_initials, 'rx', label='Priority: Beta', markersize=2)
-plt.xlabel('Unmodified Yao Algorithm')
-plt.ylabel('Algorithm Accounting for Priority')
+plt.plot(u_num_tasks_list, u_our_initials, 'bo', label='Modified Alg with Uniform Priority')#, markersize=2)
+plt.plot(u_num_tasks_list, u_yao_initials, 'g1', label='Unmodified Alg with Uniform Priority')#, markersize=2)
+if beta:
+    plt.plot(b_num_tasks_list, b_our_initials, 'm*', label='Modified Alg with Beta Priority')#, markersize=2)
+    plt.plot(b_num_tasks_list, b_yao_initials, 'rx', label='Unmodified Alg with Beta Priority')#, markersize=2)
+plt.xlabel('Number of Tasks')
+plt.ylabel('Sum of Precisions Weighted by Priorities')
 title = 'Simulation Results Evaluated by Weighted Sum of Precisions'
+plt.title(title)
+plt.legend(loc='lower right')
+plt.grid()
+plt.show()
+
+# Metric: Prec of max prio task
+plt.plot(u_num_tasks_list, u_our_maxs, 'bo', label='Modified Alg with Uniform Priority')#, markersize=2)
+plt.plot(u_num_tasks_list, u_yao_maxs, 'g1', label='Unmodified Alg with Uniform Priority')#, markersize=2)
+if beta:
+    plt.plot(b_num_tasks_list, b_our_maxs, 'm*', label='Modified Alg with Beta Priority')#, markersize=2)
+    plt.plot(b_num_tasks_list, b_yao_maxs, 'rx', label='Unmodified Alg with Beta Priority')#, markersize=2)
+plt.xlabel('Number of Tasks')
+plt.ylabel('Precision of Maximum Priority Task')
+title = 'Simulation Results Evaluated by Precision of Maximum Priority Task'
 plt.title(title)
 plt.legend(loc='upper left')
 plt.grid()
 plt.show()
 
-# Metric: Prec of max prio task
-x = np.linspace(0,max([max(u_our_maxs), max(b_our_maxs)]),100)
-y = x
-plt.plot(x, y, '-r', label='y=x')
-plt.plot(u_yao_maxs, u_our_maxs, 'bo', label='Priority: Uniform', markersize=2)
-plt.plot(b_yao_maxs, b_our_maxs, 'rx', label='Priority: Beta', markersize=2)
-plt.xlabel('Unmodified Yao Algorithm')
-plt.ylabel('Algorithm Accounting for Priority')
-title = 'Simulation Results Evaluated by Precision of Maximum Priority Task'
+# Percent improvement by number of tasks (weighted sums)
+plt.plot(u_num_tasks_list, 100 * np.array(u_our_initials) / np.array(u_yao_initials), 'bo', label='Uniform Priority')
+plt.plot(b_num_tasks_list, 100 * np.array(b_our_initials) / np.array(b_yao_initials), 'rx', label='Beta Priority')
+plt.xlabel('Number of Tasks')
+plt.ylabel('Percent Improvement')
+title = 'Percent Improvement (Weighted Sum of Precisions)'
 plt.title(title)
-plt.legend(loc='upper left')
+plt.legend(loc='upper right')
+plt.grid()
+plt.show()
+
+# Percent improvement by number of tasks (maxs)
+plt.plot(u_num_tasks_list, 100 * np.array(u_our_maxs) / np.array(u_yao_maxs), 'bo', label='Uniform Priority')
+plt.plot(b_num_tasks_list, 100 * np.array(b_our_maxs) / np.array(b_yao_maxs), 'rx', label='Beta Priority')
+plt.xlabel('Number of Tasks')
+plt.ylabel('Percent Improvement')
+title = 'Percent Improvement (Precision of Maximum Priority Task)'
+plt.title(title)
+plt.legend(loc='upper right')
 plt.grid()
 plt.show()
