@@ -18,7 +18,8 @@ POS_INF = 10**10
 class Algorithm():
     """
     The algorithm class maintains two tables S and P where:
-        S[i][r] is the depth to which task i should be computed to achieve exactly reward r*delta in
+        S[i][r] is the depth to which task i should be computed to achieve at least 
+                reward r*delta but less than reward (r+1)*delta in
                 the minimum possible time.
         P[i][r] is the time (mentioned above) required to run the schedule implied by S[i][r].
                 The schedule implied by S[i][r] is the schedule obtained by running the tasks to 
@@ -34,6 +35,7 @@ class Algorithm():
 
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
+    # i.e. this is where the solution for the current optimal schedule gets stored
     depth_sched = []
 
     def __init__(self, yao=False):
@@ -92,7 +94,7 @@ class Algorithm():
                 reward = self.reward(prec[i][l], prio[i])
                 R[i][l] = self.quantize(reward, delta)
 
-        # TODO add a sanity check here that R[i][l] is weakly decreasing WRT l for all i
+        # TODO add a sanity check here that R[i][l] is weakly increasing WRT l for all i
 
         if verbose:
             # Sanity check:
@@ -107,6 +109,8 @@ class Algorithm():
         if not self.compute_tables_from_scratch(num_tasks, stages, time, R, dead, delta):
             print('Error in compute_tables_from_scratch')
             exit()
+
+        # COME BACK HERE
 
         if verbose:
             # Sanity check:
@@ -175,8 +179,9 @@ class Algorithm():
         Rmax_quantized_single_task = int(math.floor(max(max(R[i]) for i in range(len(R)))))
         Rmax_quantized = Rmax_quantized_single_task * N
 
-        # S[i][r] is the depth to which task i should be computed to optimally achieve exactly reward r*delta
+        # S[i][r] is the depth to which task i should be computed to optimally achieve at least reward r*delta but less than (r+1)*delta
         self.S = [[None for r in range(Rmax_quantized+1)] for i in range(N)]
+        # TODO make sure this is what we want (having a zero column)
 
         # P[i][r] is the time required to carry out the schedule implied by S[i][r]
         self.P = [[POS_INF for r in range(Rmax_quantized+1)] for i in range(N)]
@@ -185,9 +190,8 @@ class Algorithm():
         i = 0
         for r in range(Rmax_quantized+1): # for each level of reward
             # We need to find the depth which achieves reward r in minimum time
-            # winning_l is that depth
+            # winning_l is that depth, and winning_t is the corresponding expected runtime
             winning_l = None
-            # winning_t is the corresponding worst-case runtime
             winning_t = POS_INF
             for l in range(len(time[i])):
                 # If this depth achieves reward r
@@ -197,7 +201,7 @@ class Algorithm():
                         winning_l = l
                         winning_t = time[i][l]
                     # If the time to achieve this depth does so in less time than the current winner
-                    elif time[i][l] < time[i][l]:
+                    elif time[i][l] < winning_t:
                         winning_l = l
                         winning_t = time[i][l]
             # Update this cell in S and P as long as the winning time abides by the task's deadline
@@ -210,13 +214,12 @@ class Algorithm():
         self.printSP()
         """
 
-        # Now for subsequent tasks we apply the same operations
+        # Now for subsequent tasks we apply the same operations (i.e. inductively build the solutions)
         for i in range(1, N):
             for r in range(Rmax_quantized+1): # for each level of reward
                 # We need to find the depth which achieves reward r in minimum time
-                # winning_l is that depth
+                # winning_l is that depth, and winning_t is the corresponding expected runtime
                 winning_l = None
-                # winning_t is the corresponding worst-case runtime
                 winning_t = POS_INF
                 # For each possible optimal depth, l
                 for l in range(len(time[i])):
@@ -226,7 +229,7 @@ class Algorithm():
                         if winning_l is None:
                             winning_l = l
                             winning_t = time[i][l]
-                        # If the time to achieve this depth does so in less time than the current winner
+                        # Otherwise, if the time to achieve this depth does so in less time than the current winner
                         elif time[i][l] < winning_t:
                             winning_l = l
                             winning_t = time[i][l]
@@ -234,7 +237,7 @@ class Algorithm():
                     # achieves the remainder of the reward, for a total of r still
                     elif R[i][l] < r:
                         # r_ is the remaining portion of r
-                        r_ = int(r - R[i][l])
+                        r_ = int(r - R[i][l]) # is cast to int but unnecessarily so? TODO
                         # If the preceding task can earn the remaining portion of r
                         if self.S[i-1][r_] is not None:
                             # If this is the first sufficient depth, is is the current winner
@@ -287,29 +290,29 @@ class Algorithm():
         if l_max is None:
             #NOTE this is where we will make changes to handle an unschedulable input set
             return None, None, None
-        else:
-            # Now we construct the optimal schedule
-            l_cur = l_max
-            # r_ is the remaining reward
-            r_ = r_max - R[N-1][l_max]
-            depth_sched = [l_cur]
-            reward_sched = [R[N-1][l_max]]
-            time_sched = [time[N-1][l_max]]
-            for i in range(N-2, -1, -1):
-                l_cur = self.S[i][r_]
-                r_ = r_ - R[i][l_cur]
-                depth_sched.insert(0, l_cur)
-                reward_sched.insert(0, R[i][l_cur])
-                time_sched.insert(0, time[i][l_cur])
-                if r_ == 0:
-                    # if 0 reward remains, the remaining tasks should all have depth 0
-                    for j in range(i):
-                        # assign remaining tasks 0
-                        depth_sched.insert(0, 0)
-                        reward_sched.insert(0, 0)
-                        time_sched.insert(0, 0)
-                    # then break, since we've built the whole schedule now
-                    break
+
+        # Now we construct the optimal schedule
+        l_cur = l_max
+        # r_ is the remaining reward
+        r_ = r_max - R[N-1][l_max]
+        depth_sched = [l_cur]
+        reward_sched = [R[N-1][l_max]]
+        time_sched = [time[N-1][l_max]]
+        for i in range(N-2, -1, -1):
+            l_cur = self.S[i][r_]
+            r_ = r_ - R[i][l_cur]
+            depth_sched.insert(0, l_cur)
+            reward_sched.insert(0, R[i][l_cur])
+            time_sched.insert(0, time[i][l_cur])
+            if r_ == 0:
+                # if 0 reward remains, the remaining tasks should all have depth 0
+                for j in range(i):
+                    # assign remaining tasks 0
+                    depth_sched.insert(0, 0)
+                    reward_sched.insert(0, 0)
+                    time_sched.insert(0, 0)
+                # then break, since we've built the whole schedule now
+                break
 
         # depth_sched is a list of the depths to which each task should be run
         # reward_sched is a list of corresponding marginal rewards
@@ -363,5 +366,4 @@ class Algorithm():
             else:
                 s = str(P[i])
             print(str(i)+": "+s+"  ")
-     
         print("\n")
