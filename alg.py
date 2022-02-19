@@ -324,11 +324,6 @@ class Algorithm():
         Computes reward as a function of the precision and priority.
         For prec, prio in [0,1], computes prec * prio.
         """
-        # For this implementation or reward, each prec and prio should be in [0,1)
-        if prec < 0 or prec >= 1:
-            raise ValueError("precision {} should have: 0 <= p < 1".format(prec))
-        if prio < 0 or prio > 1:
-            raise ValueError("priority {} should have: 0 <= p <= 1".format(prio))
 
         if self.yao:
             # Ignore priority
