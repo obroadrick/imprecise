@@ -181,7 +181,6 @@ class Algorithm():
 
         # S[i][r] is the depth to which task i should be computed to optimally achieve at least reward r*delta but less than (r+1)*delta
         self.S = [[None for r in range(Rmax_quantized+1)] for i in range(N)]
-        # TODO make sure this is what we want (having a zero column)
 
         # P[i][r] is the time required to carry out the schedule implied by S[i][r]
         self.P = [[POS_INF for r in range(Rmax_quantized+1)] for i in range(N)]
@@ -237,7 +236,7 @@ class Algorithm():
                     # achieves the remainder of the reward, for a total of r still
                     elif R[i][l] < r:
                         # r_ is the remaining portion of r
-                        r_ = int(r - R[i][l]) # is cast to int but unnecessarily so? TODO
+                        r_ = r - R[i][l] # HERE IS CHANGE
                         # If the preceding task can earn the remaining portion of r
                         if self.S[i-1][r_] is not None:
                             # If this is the first sufficient depth, is is the current winner
