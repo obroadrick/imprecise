@@ -61,6 +61,7 @@ class Algorithm():
         dead        dead[i] is the deadline for task i
 
         """
+
         # Check for correct inputs
         if not isinstance(num_tasks, int) or num_tasks < 0:
             raise ValueError("num_tasks should be a positive integer")
@@ -69,10 +70,10 @@ class Algorithm():
         if not len(time) == num_tasks:
             raise ValueError("time should have length num_tasks")
         for task_idx, time_list in enumerate(time):
-            if not len(time_list) == stages[task_idx] + 1:
+            if not len(time_list) == stages[task_idx]:
                 raise ValueError("time[i] should have length stages[i]")
         for task_idx, prec_list in enumerate(prec):
-            if not len(prec_list) == stages[task_idx] + 1:
+            if not len(prec_list) == stages[task_idx]:
                 raise ValueError("prec[i] should have length stages[i]")
         if not len(prec) == num_tasks:
             raise ValueError("prec should have length num_tasks")
@@ -80,6 +81,11 @@ class Algorithm():
             raise ValueError("prio should have length num_tasks")
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
+
+        #Prepend necessary 0s for time and precision
+        prepends = self.prepend(time, prec)
+        time = prepends[0]
+        prec = prepends[1]
 
         # delta is the basic increment of reward
         # NOTE this is a good place to play and have fun!
@@ -361,3 +367,12 @@ class Algorithm():
                 s = str(P[i])
             print(str(i)+": "+s+"  ")
         print("\n")
+
+    def prepend(self, time, prec):
+        """
+        Prepends 0s onto our time arrays
+        """
+        for i in range(len(time)):
+          time[i].insert(0,0)
+          prec[i].insert(0,0)
+        return time, prec

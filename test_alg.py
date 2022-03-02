@@ -17,10 +17,10 @@ num_tasks = 3
 stages = [5,3,4]
 
 # time[i][l] is the runtime for the first l stages of task i (cumulative)
-time = [[0,2,3,5,7,9], [0,3,4,7], [0,1,9,9,12]]
+time = [[2,3,5,7,9], [3,4,7], [1,9,9,12]]
 
 # prec[i][l] is the expected prec for completing the first l stages of task i before the deadline
-prec = [[0,12,15,16,17,17], [0,2,6,6], [0,3,3,4,6]]
+prec = [[12,15,16,17,17], [2,6,6], [3,3,4,6]]
 
 # dead[i] is the deadline for task i 
 # (we assume we begin running at time 0, so D[i] is the maximum permissable runtime before task i must have been run)
