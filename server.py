@@ -4,6 +4,8 @@ from task import Task
 from stage import Stage
 from flask import Flask
 from runner import Runner
+from benchmarking import Graph
+from benchmarking import Time
 
 app = Flask(__name__)
 
