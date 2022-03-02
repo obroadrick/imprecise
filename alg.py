@@ -370,7 +370,7 @@ class Algorithm():
 
     def prepend(self, time, prec):
         """
-        Prepends 0s onto our time arrays
+        Prepends 0s onto our time and precision arrays
         """
         for i in range(len(time)):
           time[i].insert(0,0)
