@@ -83,9 +83,7 @@ class Algorithm():
             raise ValueError("dead should have length num_tasks")
 
         #Prepend necessary 0s for time and precision
-        prepends = self.prepend(time, prec)
-        time = prepends[0]
-        prec = prepends[1]
+        self.prepend(time, prec)
 
         # delta is the basic increment of reward
         # NOTE this is a good place to play and have fun!
@@ -375,4 +373,3 @@ class Algorithm():
         for i in range(len(time)):
           time[i].insert(0,0)
           prec[i].insert(0,0)
-        return time, prec
