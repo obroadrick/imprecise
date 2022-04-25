@@ -33,7 +33,7 @@ class Yao():
     P = None
 
     # Delta, the basic quantization increment used for the dynamic programming algorithm
-    delta = .1
+    delta = .001
 
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
@@ -72,10 +72,6 @@ class Yao():
             raise ValueError("time should have length num_tasks")
         for task_idx, time_list in enumerate(time):
             if not len(time_list) == stages[task_idx]:
-                print("hey")
-                print(len(time_list))
-                print(stages[task_idx])
-                print("ohf")
                 raise ValueError("time[i] should have length stages[i]")
         for task_idx, prec_list in enumerate(prec):
             if not len(prec_list) == stages[task_idx]:
@@ -86,9 +82,6 @@ class Yao():
             raise ValueError("prio should have length num_tasks")
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
-
-        #Prepend necessary 0s for time and precision
-        self.prepend(time, prec)
 
         # delta is the basic increment of reward
         # NOTE this is a good place to play and have fun!
@@ -175,10 +168,10 @@ class Yao():
         if not len(time) == num_tasks:
             raise ValueError("time should have length num_tasks")
         for task_idx, time_list in enumerate(time):
-            if not len(time_list) == stages[task_idx] + 1:
+            if not len(time_list) == stages[task_idx]:
                 raise ValueError("time[i] should have length stages[i] + 1")
         for task_idx, R_list in enumerate(R):
-            if not len(R_list) == stages[task_idx] + 1:
+            if not len(R_list) == stages[task_idx]:
                 raise ValueError("R[i] should have length stages[i]")
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
@@ -370,11 +363,3 @@ class Yao():
                 s = str(P[i])
             print(str(i)+": "+s+"  ")
         print("\n")
-
-    def prepend(self, time, prec):
-        """
-        Prepends 0s onto our time and precision arrays
-        """
-        for i in range(len(time)):
-          time[i].insert(0,0)
-          prec[i].insert(0,0)

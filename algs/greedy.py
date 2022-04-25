@@ -1,6 +1,7 @@
 """
-Sample algorithm class that can be used as a template for future 
-scheduling algorithms.
+Simple greedy algorithm for the single processor, indepedent tasks model.
+
+Schedules mandatory parts then simply adds optional parts in order of priority.
 """
 
 import numpy as np
@@ -8,7 +9,7 @@ import math
 
 POS_INF = 10**10 
 
-class Algorithm():
+class Greedy():
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     # i.e. this is where the solution for the current optimal schedule gets stored

@@ -16,17 +16,18 @@ def is_valid_sched(depth_sched, num_tasks, stages, time, prec, prio, dead):
     for i in range(num_tasks):
         cum_time += time[i][depth_sched[i]]
         if cum_time > dead[i]:
+            print(cum_time, dead[i])
             return False
     return True
 
-def initial_metric(depth_sched, num_tasks, stages, time, prec, prio, dead):
+def weighted_avg_metric(depth_sched, num_tasks, stages, time, prec, prio, dead):
     """
     Returns the sum of reward for all tasks under the given schedule, where
     reward is given by the function reward below.
     """
     # If the passed schedule is invalid, return 0.
     if not is_valid_sched(depth_sched, num_tasks, stages, time, prec, prio, dead):
-        return 0
+        return -1
 
     cum_reward = 0
     for i in range(num_tasks):

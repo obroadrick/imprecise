@@ -5,7 +5,7 @@ At least at first, a short script that works through a toy example.
 Ultimately, we will have unit tests for exceptions and known results.
 """
 
-from alg import Algorithm
+from dynamic import Dynamic
 
 
 
@@ -49,7 +49,7 @@ for i in range(len(dead)):
 # call sched for these inputs
 verbose = True
 print("\n\nSOLUTION:")
-a = Algorithm()
+a = Dynamic()
 a.sched(num_tasks, stages, time, prec, prio, dead, verbose)
 print("")
 
