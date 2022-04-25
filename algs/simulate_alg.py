@@ -7,6 +7,7 @@ from metrics import initial_metric, max_priority_metric
 import numpy as np
 from numpy import random as rand
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 rand.seed(134156)
 
@@ -22,7 +23,7 @@ def do_trials(num_trials, dist):
     # we track the number of tasks since it can vary
     num_tasks_list = []
 
-    for i in range(num_trials):
+    for i in tqdm(range(num_trials)):
         # num_tasks is the number of tasks
         num_tasks = rand.randint(2, 100) # is inclusive
         num_tasks_list.append(num_tasks)
@@ -42,9 +43,14 @@ def do_trials(num_trials, dist):
                     sampled_time = rand.uniform(cur_times[-1], 1)
                 cur_times.append(sampled_time)
             time.append(cur_times)
+        """alg now does this
         # now prepend a 0 time item for each task corresponding to no completion
         for i in range(len(time)):
             time[i].insert(0,0)
+        """
+        for i in range(3):
+            print(len(time[i]))
+            print(stages[i])
             
         # prec[i][l] is the expected prec for completing the first l stages of task i before the deadline
         # prec = [[12,15,16,17,17], [2,6,6], [3,3,4,6]]
@@ -59,9 +65,11 @@ def do_trials(num_trials, dist):
                     sampled_prec = rand.uniform(cur_precs[-1], 1)
                 cur_precs.append(sampled_prec)
             prec.append(cur_precs)
+        """alg now does this
         # now prepend a 0 prec item for each task corresponding to no completion
         for i in range(len(prec)):
             prec[i].insert(0,0)
+        """
          
 
         # dead[i] is the deadline for task i 
@@ -114,6 +122,8 @@ def do_trials(num_trials, dist):
         if verbose:
             print("\n\nOURS:")
 
+        print(len(time[0]))
+        print(stages[0])
         ours.sched(num_tasks, stages, time, prec, prio, dead, verbose)
 
         if verbose:

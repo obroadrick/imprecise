@@ -1,4 +1,6 @@
 """
+**Implements the Yao algorithm with modifications to the "reward" function.**
+
 API for scheduling using the algorithm presented in 
 "Scheduling Real-time Deep Learning Services as Imprecise Computations"
 by Yao et al.
@@ -15,7 +17,7 @@ import math
 
 POS_INF = 10**10 
 
-class Algorithm():
+class Dynamic():
     """
     The algorithm class maintains two tables S and P where:
         S[i][r] is the depth to which task i should be computed to achieve at least 
@@ -38,12 +40,11 @@ class Algorithm():
     # i.e. this is where the solution for the current optimal schedule gets stored
     depth_sched = []
 
-    def __init__(self, yao=False):
+    def __init__(self):
         """
         The algorithm class will populate the S and P solution tables once 
         tasks are passed (ie. sched is called).
         """
-        self.yao = yao
         # Give some default values to other members
         self.S = None
         self.P = None
@@ -71,6 +72,10 @@ class Algorithm():
             raise ValueError("time should have length num_tasks")
         for task_idx, time_list in enumerate(time):
             if not len(time_list) == stages[task_idx]:
+                print("hey")
+                print(len(time_list))
+                print(stages[task_idx])
+                print("ohf")
                 raise ValueError("time[i] should have length stages[i]")
         for task_idx, prec_list in enumerate(prec):
             if not len(prec_list) == stages[task_idx]:
@@ -116,9 +121,11 @@ class Algorithm():
 
         # COME BACK HERE
 
+        """ too much
         if verbose:
             # Sanity check:
             self.printSP()
+        """
 
         # Find optimal depths from the completed tables
         depth_sched, reward_sched, time_sched = self.find_optimal_depths_from_tables(R, time, verbose)
@@ -329,9 +336,6 @@ class Algorithm():
         For prec, prio in [0,1], computes prec * prio.
         """
 
-        if self.yao:
-            # Ignore priority
-            return prec
         return prec * prio
 
     def quantize(self, reward, delta):
