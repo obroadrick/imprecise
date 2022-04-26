@@ -66,9 +66,8 @@ class Greedy():
             return None
 
         # get the indexes of the highest priority tasks
-        enumerate_object = enumerate(prio)
         prio = np.array(prio)
-        highest_prio_tasks = np.argsort(prio)
+        highest_prio_tasks = np.argsort(-1*prio)
 
         # now for each task in order of highest priority, add as any layers as we can fit in
         time_used = mand_time
@@ -76,7 +75,6 @@ class Greedy():
             # see how many layers we can fit in for this task (start at last layer since we have cumulative times)
             for l in range(stages[taskidx]-1, 0, -1):
                 if time_used + time[taskidx][l] <= deadline:
-                    print('added depth',l,'of',stages[taskidx])
                     time_used += time[taskidx][l]
                     depth_sched[taskidx] = l
                     break

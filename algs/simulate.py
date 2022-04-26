@@ -127,7 +127,6 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             for i in range(len(dead)):
                 print(i,":",dead[i])
             print("\n\nSOLUTION:")
-            print("\n\nOURS:")
 
         # Instantiate objects for each of the algorithms
         algorithms = []
@@ -142,24 +141,7 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             weightavg = weighted_avg_metric(depth_sched, cur_num_tasks, stages, time, prec, prio, dead)
             maxprio = max_priority_metric(depth_sched, cur_num_tasks, stages, time, prec, prio, dead)
             if weightavg == -1:
-                tot=0
-                for tlist in time:
-                    tot += tlist[0]
-                print('invalid: '+alg.__class__.__name__)
-                """
-                print('time of mandatory layers:', tot)
-                print('depths assigned',depth_sched)
-                print('corresponding times*precisions')
-                tot = 0
-                tottime=0
-                for i in range(len(prec)):
-                    cur = prec[i][depth_sched[i]]*time[i][depth_sched[i]]
-                    tot += cur
-                    tottime+=time[i][depth_sched[i]]
-                    print(time[i][depth_sched[i]],'*',prec[i][depth_sched[i]],'=',cur)
-                print('sum:',cur)
-                print('tottime:',tottime)
-                """
+                print('Invalid schedule returned by '+alg.__class__.__name__)
 
             if verbose:
                 print("\n\n Metrics for measuring algorithm performance: how good is this schedule?")

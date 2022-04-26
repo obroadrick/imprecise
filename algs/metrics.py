@@ -16,7 +16,6 @@ def is_valid_sched(depth_sched, num_tasks, stages, time, prec, prio, dead):
     for i in range(num_tasks):
         cum_time += time[i][depth_sched[i]]
         if cum_time > dead[i]:
-            print(cum_time, dead[i])
             return False
     return True
 
