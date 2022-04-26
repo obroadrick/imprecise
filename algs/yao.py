@@ -226,6 +226,7 @@ class Yao():
                 winning_t = POS_INF
                 # For each possible optimal depth, l
                 for l in range(len(time[i])):
+                    """ no longer an option with mandatory first stages
                     # If this depth achieves reward r on its own
                     if R[i][l] == r:
                         # If this is the first sufficient depth, it is the current winner
@@ -239,18 +240,19 @@ class Yao():
                     # If this depth achieves some part of this reward but an earlier task
                     # achieves the remainder of the reward, for a total of r still
                     elif R[i][l] < r:
-                        # r_ is the remaining portion of r
-                        r_ = r - R[i][l] # HERE IS CHANGE
-                        # If the preceding task can earn the remaining portion of r
-                        if self.S[i-1][r_] is not None:
-                            # If this is the first sufficient depth, is is the current winner
-                            if winning_l is None:
-                                winning_l = l
-                                winning_t = time[i][l] + self.P[i-1][r_]
-                            # If the time to achieve this depth does so in less time than the current winner
-                            elif time[i][l] + self.P[i-1][r_] < winning_t:
-                                winning_l = l
-                                winning_t = time[i][l] + self.P[i-1][r_]
+                    """
+                    # r_ is the remaining portion of r
+                    r_ = r - R[i][l] # HERE IS CHANGE
+                    # If the preceding task can earn the remaining portion of r
+                    if self.S[i-1][r_] is not None:
+                        # If this is the first sufficient depth, is is the current winner
+                        if winning_l is None:
+                            winning_l = l
+                            winning_t = time[i][l] + self.P[i-1][r_]
+                        # If the time to achieve this depth does so in less time than the current winner
+                        elif time[i][l] + self.P[i-1][r_] < winning_t:
+                            winning_l = l
+                            winning_t = time[i][l] + self.P[i-1][r_]
              
                 # Update this cell in S and P as long as the winning time is less than the deadline for this task
                 if winning_l is not None and winning_t <= dead[i]:

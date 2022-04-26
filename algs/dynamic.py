@@ -226,6 +226,7 @@ class Dynamic():
                 winning_t = POS_INF
                 # For each possible optimal depth, l
                 for l in range(len(time[i])):
+                    """ this won't work anymore, since we require the mandatory component of each task to be run first
                     # If this depth achieves reward r on its own
                     if R[i][l] == r:
                         # If this is the first sufficient depth, it is the current winner
@@ -237,22 +238,24 @@ class Dynamic():
                         elif time[i][l] < winning_t:
                             winning_l = l
                             winning_t = time[i][l]
+                    # If this depth achieves reward r on its own
                     # If this depth achieves some part of this reward but an earlier task
                     # achieves the remainder of the reward, for a total of r still
-                    elif R[i][l] < r:
-                        # r_ is the remaining portion of r
-                        r_ = r - R[i][l] # HERE IS CHANGE
-                        # If the preceding task can earn the remaining portion of r
-                        if self.S[i-1][r_] is not None:
-                            # If this is the first sufficient depth, is is the current winner
-                            if winning_l is None:
-                                winning_l = l
-                                winning_t = time[i][l] + self.P[i-1][r_]
-                            # If the time to achieve this depth does so in less time than the current winner
-                            elif time[i][l] + self.P[i-1][r_] < winning_t:
-                                winning_l = l
-                                winning_t = time[i][l] + self.P[i-1][r_]
-             
+                    if R[i][l] < r:
+                    """
+                    # r_ is the remaining portion of r
+                    r_ = r - R[i][l] # HERE IS CHANGE
+                    # If the preceding task can earn the remaining portion of r
+                    if self.S[i-1][r_] is not None:
+                        # If this is the first sufficient depth, is is the current winner
+                        if winning_l is None:
+                            winning_l = l
+                            winning_t = time[i][l] + self.P[i-1][r_]
+                        # If the time to achieve this depth does so in less time than the current winner
+                        elif time[i][l] + self.P[i-1][r_] < winning_t:
+                            winning_l = l
+                            winning_t = time[i][l] + self.P[i-1][r_]
+         
                 # Update this cell in S and P as long as the winning time is less than the deadline for this task
                 if winning_l is not None and winning_t <= dead[i]:
                     self.S[i][r] = winning_l
@@ -309,6 +312,7 @@ class Dynamic():
             reward_sched.insert(0, R[i][l_cur])
             time_sched.insert(0, time[i][l_cur])
             if r_ == 0:
+                #TODO remove this since it is outdated if the assumption is that all first layers are manditory
                 # if 0 reward remains, the remaining tasks should all have depth 0
                 for j in range(i):
                     # assign remaining tasks 0
