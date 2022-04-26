@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from yao import Yao
 from dynamic import Dynamic
-from greedy import Greedy #incomplete as an algorithm option currenlty
+from greedy import Greedy 
 
 rand.seed(3141596)
 
@@ -183,7 +183,7 @@ def plot(num_tasks_list, results, alg_names, metric_idx, metric_name):
                             this is the index of the metric to plot
         alg_names       - names of the algorithms (in same order as in results)
     """
-    markers = ['gx', 'b+']
+    markers = ['gx', 'b+', 'r1']
     for idx, algname in enumerate(alg_names):
         plt.plot(num_tasks_list, results[idx][metric_idx], markers[idx], label=algname)
     plt.xlabel('Number of Tasks')
@@ -197,8 +197,8 @@ def plot(num_tasks_list, results, alg_names, metric_idx, metric_name):
 # Run simulations
 num_trials = 150
 prio_dist = 'beta'
-algs = [Yao, Dynamic]
-alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward']
+algs = [Yao, Dynamic, Greedy]
+alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm']
 num_tasks_list, results = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
 
 # Plot results

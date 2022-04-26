@@ -1,5 +1,6 @@
 """
 Simple greedy algorithm for the single processor, indepedent tasks model.
+Assumes same deadline for all tasks.
 
 Schedules mandatory parts then simply adds optional parts in order of priority.
 """
@@ -50,9 +51,36 @@ class Greedy():
             raise ValueError("prio should have length num_tasks")
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
-        #Prepend necessary 0s for time and precision
-        self.prepend(time, prec)
+
+        # intially, we need to schedule the mandatory components
+        depth_sched = [0] * num_tasks
+
+        # check how much time is needed by mandatory parts of tasks
+        mand_time = 0
+        for i in range(len(time)):
+            mand_time += time[i][0] #first stage encapsulates all mandatory work for a task
+
+        # if extra time, we keep scheduling
+        deadline = dead[i] #assume same deadline for all tasks
+        if mand_time > deadline:
+            return None
+
+        # get the indexes of the highest priority tasks
+        enumerate_object = enumerate(prio)
+        prio = np.array(prio)
+        highest_prio_tasks = np.argsort(prio)
+
+        # now for each task in order of highest priority, add as any layers as we can fit in
+        time_used = mand_time
+        for taskidx in highest_prio_tasks:
+            # see how many layers we can fit in for this task (start at last layer since we have cumulative times)
+            for l in range(stages[taskidx]-1, 0, -1):
+                if time_used + time[taskidx][l] <= deadline:
+                    print('added depth',l,'of',stages[taskidx])
+                    time_used += time[taskidx][l]
+                    depth_sched[taskidx] = l
+                    break
 
         # Return the depth schedule (EDF is used for the server to dispatch tasks)
-        self.depth_sched = [0] * num_tasks
+        self.depth_sched = depth_sched
         return self.depth_sched
