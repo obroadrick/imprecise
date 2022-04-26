@@ -49,9 +49,10 @@ class Algorithm():
             raise ValueError("prio should have length num_tasks")
         if not len(dead) == num_tasks:
             raise ValueError("dead should have length num_tasks")
-        #Prepend necessary 0s for time and precision
-        self.prepend(time, prec)
 
         # Return the depth schedule (EDF is used for the server to dispatch tasks)
+        # For this sample algorith, we just return '0' which is the index of just the 
+        # first stage (the mandatory component of the task) for each task, a valid,
+        # but not very advantageous schedule, leaving room for improved precisions.
         self.depth_sched = [0] * num_tasks
         return self.depth_sched
