@@ -10,6 +10,7 @@ from tqdm import tqdm
 from yao import Yao
 from dynamic import Dynamic
 from greedy import Greedy 
+import random
 
 rand.seed(31415926)
 
@@ -109,6 +110,31 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
                 b = .1 # paramters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = rand.beta(a, b)
+                    prio.append(cur_prio)
+            elif prio_dist == 'skew_right':
+                # Sample from a beta distribution (high at 0 and 1, lower in between)
+                a = 2
+                b = 8 # paramters that give desired shape
+                for i in range(cur_num_tasks):
+                    cur_prio = rand.beta(a, b)
+                    prio.append(cur_prio)
+                    
+            elif prio_dist == 'skew_left':
+                # Sample from a beta distribution (high at 0 and 1, lower in between)
+                a = 8
+                b = 2 # paramters that give desired shape
+                for i in range(cur_num_tasks):
+                    cur_prio = rand.beta(a, b)
+                    prio.append(cur_prio)
+                    
+            elif prio_dist == 'normal':
+                # Sample from a beta distribution (high at 0 and 1, lower in between)
+                mean = .5
+                stddev = .1 # paramters that give desired shape
+                for i in range(cur_num_tasks):
+                    cur_prio = random.gauss(mean, stddev)
+                    while(cur_prio > 1 or cur_prio < 0):
+                        cur_prio = rand.gauss(mean, stddev)                    
                     prio.append(cur_prio)
 
             verbose = False
@@ -213,8 +239,9 @@ def plot_avgs(num_tasks_list, results, alg_names, metric_idx, metric_name):
 
 
 # Run simulations
-num_trials = 1000
-prio_dist = 'beta'
+num_trials = 100
+#prio_dist = 'normal'
+prio_dist = 'skew_right'
 algs = [Yao, Dynamic, Greedy]
 alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm']
 num_tasks_list, results, avg_results = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
