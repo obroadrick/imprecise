@@ -44,7 +44,10 @@ def max_priority_metric(depth_sched, num_tasks, stages, time, prec, prio, dead):
     if not is_valid_sched(depth_sched, num_tasks, stages, time, prec, prio, dead):
         return 0
 
-    max_prio_task = np.argmax(prio)
+    #max_prio_task = np.argmax(prio)
+    prio = np.array(prio)
+    highest_prio_tasks = np.argsort(-1*prio)
+    max_prio_task = highest_prio_tasks[0]
 
     return prec[max_prio_task][depth_sched[max_prio_task]]
 

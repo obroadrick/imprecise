@@ -27,10 +27,9 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
         num_tasks   - num_tasks[0] is a lower bound and num_tasks[1] an upper bound on the number of tasks 
                         for each simulated scheduling problem (drawn uniformly)
     """
-    # ours is the alg using weighted prec by prio
-    # yao is default yao algorithm
     num_algs = len(algs)
-    num_metrics = 2 # number of metrics being used to evaluate the schedules
+    # NOTE number of metrics being used to evaluate the schedules (could be played with)
+    num_metrics = 2 
     results = []
     for i in range(num_algs):
         results.append(([], []))
@@ -40,9 +39,8 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             metric_results.append([])
         results.append(metric_results)
 
-    # we track the number of tasks since it can vary
+    # Track the number of tasks in each generated trial (since it is selected at random)
     num_tasks_list = []
-
     for i in tqdm(range(num_trials)):
         # num_tasks is the number of tasks
         cur_num_tasks = rand.randint(num_tasks[0], num_tasks[1]) # is inclusive

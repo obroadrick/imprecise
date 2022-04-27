@@ -61,7 +61,7 @@ class Greedy():
             mand_time += time[i][0] #first stage encapsulates all mandatory work for a task
 
         # if extra time, we keep scheduling
-        deadline = dead[i] #assume same deadline for all tasks
+        deadline = dead[0] #assume same deadline for all tasks
         if mand_time > deadline:
             return None
 
@@ -73,7 +73,7 @@ class Greedy():
         time_used = mand_time
         for taskidx in highest_prio_tasks:
             # see how many layers we can fit in for this task (start at last layer since we have cumulative times)
-            for l in range(stages[taskidx]-1, 0, -1):
+            for l in range(stages[taskidx]-1, -1, -1):
                 if time_used + time[taskidx][l] <= deadline:
                     time_used += time[taskidx][l]
                     depth_sched[taskidx] = l
