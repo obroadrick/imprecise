@@ -110,6 +110,32 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             for i in range(cur_num_tasks):
                 cur_prio = rand.beta(a, b)
                 prio.append(cur_prio)
+        
+        elif prio_dist == 'skew_right':
+            # Sample from a beta distribution (high at 0 and 1, lower in between)
+            a = 2
+            b = 8 # paramters that give desired shape
+            for i in range(cur_num_tasks):
+                cur_prio = rand.beta(a, b)
+                prio.append(cur_prio)
+                
+        elif prio_dist == 'skew_left':
+            # Sample from a beta distribution (high at 0 and 1, lower in between)
+            a = 8
+            b = 2 # paramters that give desired shape
+            for i in range(cur_num_tasks):
+                cur_prio = rand.beta(a, b)
+                prio.append(cur_prio)
+                
+        elif prio_dist == 'normal':
+            # Sample from a beta distribution (high at 0 and 1, lower in between)
+            mean = .5
+            stddev = .1 # paramters that give desired shape
+            for i in range(cur_num_tasks):
+                cur_prio = rand.gauss(a, b)
+                while(cur_prio > 1 or cur_prio < 0):
+                    cur_prio = rand.gauss(a,b)                    
+                prio.append(cur_prio)
 
         verbose = False
         if verbose:
