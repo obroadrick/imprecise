@@ -11,7 +11,7 @@ from yao import Yao
 from dynamic import Dynamic
 from greedy import Greedy 
 
-rand.seed(3141596)
+rand.seed(31415926)
 
 def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
     """
@@ -27,7 +27,6 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
         num_tasks   - num_tasks[0] is a lower bound and num_tasks[1] an upper bound on the number of tasks 
                         for each simulated scheduling problem (drawn uniformly)
     """
-    print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
     num_algs = len(algs)
     # NOTE number of metrics being used to evaluate the schedules (could be played with)
     num_metrics = 2 
@@ -103,8 +102,6 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             # Sample a uniform priority
             for i in range(cur_num_tasks):
                 cur_prio = rand.uniform()
-                if cur_prio in prio:
-                    print('ahhh!')
                 prio.append(cur_prio)
         elif prio_dist == 'beta':
             # Sample from a beta distribution (high at 0 and 1, lower in between)
@@ -143,8 +140,6 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             depth_sched = alg.sched(cur_num_tasks, stages, time, prec, prio, dead, verbose=False)
 
             # Evaluate the resulting schedule for both the weighted average metric and the max priority metric
-            print(alg.__class__.__name__)
-            print('depth_sched',depth_sched)
             weightavg = weighted_avg_metric(depth_sched, cur_num_tasks, stages, time, prec, prio, dead)
             maxprio = max_priority_metric(depth_sched, cur_num_tasks, stages, time, prec, prio, dead)
             if weightavg == -1:

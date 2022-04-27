@@ -16,6 +16,11 @@ def is_valid_sched(depth_sched, num_tasks, stages, time, prec, prio, dead):
     for i in range(num_tasks):
         cum_time += time[i][depth_sched[i]]
         if cum_time > dead[i]:
+            print('Invalid depth schedule: must have total runtime at most the deadline')
+            return False
+    for i in range(len(depth_sched)):
+        if depth_sched[i] < 0:
+            print('Invalid depth schedule: must run the mandatory part of task',i)
             return False
     return True
 
@@ -48,9 +53,6 @@ def max_priority_metric(depth_sched, num_tasks, stages, time, prec, prio, dead):
     prio = np.array(prio)
     highest_prio_tasks = np.argsort(-1*prio)
     max_prio_task = highest_prio_tasks[0]
-    print(depth_sched[max_prio_task])
-    print(prec[max_prio_task][depth_sched[max_prio_task]])
-
     return prec[max_prio_task][depth_sched[max_prio_task]]
 
 def simple_precision_metric(depth_sched, num_tasks, stages, time, prec, prio, dead):
