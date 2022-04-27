@@ -48,6 +48,8 @@ def max_priority_metric(depth_sched, num_tasks, stages, time, prec, prio, dead):
     prio = np.array(prio)
     highest_prio_tasks = np.argsort(-1*prio)
     max_prio_task = highest_prio_tasks[0]
+    print(depth_sched[max_prio_task])
+    print(prec[max_prio_task][depth_sched[max_prio_task]])
 
     return prec[max_prio_task][depth_sched[max_prio_task]]
 

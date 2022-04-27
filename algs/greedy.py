@@ -68,6 +68,8 @@ class Greedy():
         # get the indexes of the highest priority tasks
         prio = np.array(prio)
         highest_prio_tasks = np.argsort(-1*prio)
+        print('prio:',prio)
+        print('highest_prio_tasks:',highest_prio_tasks)
 
         # now for each task in order of highest priority, add as any layers as we can fit in
         time_used = mand_time
@@ -81,4 +83,4 @@ class Greedy():
 
         # Return the depth schedule (EDF is used for the server to dispatch tasks)
         self.depth_sched = depth_sched
-        return self.depth_sched
+        return depth_sched

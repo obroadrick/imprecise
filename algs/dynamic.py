@@ -311,6 +311,7 @@ class Dynamic():
             depth_sched.insert(0, l_cur)
             reward_sched.insert(0, R[i][l_cur])
             time_sched.insert(0, time[i][l_cur])
+            """
             if r_ == 0:
                 #TODO remove this since it is outdated if the assumption is that all first layers are manditory
                 # if 0 reward remains, the remaining tasks should all have depth 0
@@ -321,6 +322,7 @@ class Dynamic():
                     time_sched.insert(0, 0)
                 # then break, since we've built the whole schedule now
                 break
+            """
 
         # depth_sched is a list of the depths to which each task should be run
         # reward_sched is a list of corresponding marginal rewards

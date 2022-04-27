@@ -27,6 +27,7 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
         num_tasks   - num_tasks[0] is a lower bound and num_tasks[1] an upper bound on the number of tasks 
                         for each simulated scheduling problem (drawn uniformly)
     """
+    print('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
     num_algs = len(algs)
     # NOTE number of metrics being used to evaluate the schedules (could be played with)
     num_metrics = 2 
@@ -41,12 +42,17 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
 
     # Track the number of tasks in each generated trial (since it is selected at random)
     num_tasks_list = []
-    for i in tqdm(range(num_trials)):
-        # num_tasks is the number of tasks
-        cur_num_tasks = rand.randint(num_tasks[0], num_tasks[1]) # is inclusive
+    trials_per_num_tasks = int(num_trials / (num_tasks[1] - num_tasks[0]))
+    cur_num_tasks = num_tasks[0] - 1
+    for i in tqdm(range(trials_per_num_tasks*(num_tasks[1] - num_tasks[0]+1))):
+        # cur_num_tasks is the number of tasks
+        # uniform in the passed range
+        if i % trials_per_num_tasks == 0:
+            cur_num_tasks += 1
         num_tasks_list.append(cur_num_tasks)
 
-        # stages[i] is the number of stages for task i
+        # stages[i] is the number of stages for task i 
+        # constant for now
         num_stages = 6
         stages = [num_stages] * cur_num_tasks
 
@@ -64,7 +70,6 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             time.append(cur_times)
            
         # prec[i][l] is the expected prec for completing the first l stages of task i before the deadline
-        # prec = [[12,15,16,17,17], [2,6,6], [3,3,4,6]]
         prec = []
         for task_idx, num_stages in enumerate(stages):
             cur_precs = []
@@ -98,6 +103,8 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             # Sample a uniform priority
             for i in range(cur_num_tasks):
                 cur_prio = rand.uniform()
+                if cur_prio in prio:
+                    print('ahhh!')
                 prio.append(cur_prio)
         elif prio_dist == 'beta':
             # Sample from a beta distribution (high at 0 and 1, lower in between)
@@ -136,6 +143,8 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             depth_sched = alg.sched(cur_num_tasks, stages, time, prec, prio, dead, verbose=False)
 
             # Evaluate the resulting schedule for both the weighted average metric and the max priority metric
+            print(alg.__class__.__name__)
+            print('depth_sched',depth_sched)
             weightavg = weighted_avg_metric(depth_sched, cur_num_tasks, stages, time, prec, prio, dead)
             maxprio = max_priority_metric(depth_sched, cur_num_tasks, stages, time, prec, prio, dead)
             if weightavg == -1:
