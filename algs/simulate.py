@@ -48,7 +48,7 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
     for cur_num_tasks in tqdm(range(num_tasks[0], num_tasks[1] + 1, 1)):
         cur_results = []
         for i in range(num_algs):
-            cur_results.append(([], []))
+            cur_results.append(([], [])) #a list for each of the two metrics(could be abstracted)
         for i in range(trials_per_num_tasks):
             count += 1
             num_tasks_list.append(cur_num_tasks)
@@ -99,7 +99,7 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             deadline_per_task = total_mandatory_time + .5 * (cur_num_tasks - total_mandatory_time)
             dead = [deadline_per_task] * cur_num_tasks
 
-            # the priority associated with each task
+            # the priority associated with each task drawn from passed distribution
             prio = []
             if prio_dist == 'uniform':
                 # Sample a uniform priority
@@ -119,14 +119,12 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
                 for i in range(cur_num_tasks):
                     cur_prio = rand.beta(a, b)
                     prio.append(cur_prio)
-                    
             elif prio_dist == 'skew_left':
                 a = 8
                 b = 2 # parameters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = rand.beta(a, b)
                     prio.append(cur_prio)
-                    
             elif prio_dist == 'normal':
                 mean = .5
                 stddev = .1 # parameters that give desired shape
@@ -248,7 +246,7 @@ def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric
         num_tasks_list.append(min_num_tasks + i)
     # For the given metric, we first establish which algorithm performed worst and use it as the baseline (1)
     worstalg = -1
-    POSINF = 100**10
+    POSINF = 10**10
     worstalgsum = POSINF
     relevant_results = list(np.empty(len(alg_names)))
     for algidx in range(len(alg_names)):
@@ -257,7 +255,7 @@ def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric
         if res < worstalgsum:
             worstalgsum = res
             worstalg = algidx
-        relevant_results[algidx] = avg_results[algidx][metric_idx]
+        relevant_results[algidx] = np.copy(avg_results[algidx][metric_idx])
     relevant_results = np.array(relevant_results)
 
     # Compute metrics instead as a proportion of the worst alg's metric

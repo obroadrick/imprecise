@@ -32,9 +32,6 @@ class Yao():
     S = None
     P = None
 
-    # Delta, the basic quantization increment used for the dynamic programming algorithm
-    delta = .001
-
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     # i.e. this is where the solution for the current optimal schedule gets stored
@@ -48,7 +45,7 @@ class Yao():
         # Give some default values to other members
         self.S = None
         self.P = None
-        self.delta = .1
+        self.delta = .01
 
     def sched(self, num_tasks, stages, time, prec, prio, dead, verbose=False):
         """
