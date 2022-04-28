@@ -129,7 +129,7 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
                     
             elif prio_dist == 'normal':
                 mean = .5
-                stddev = .1 # parameters that give desired shape
+                stddev = .16 # parameters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = random.gauss(mean, stddev)
                     while(cur_prio > 1 or cur_prio < 0):
