@@ -1,5 +1,8 @@
 """
-Script for simulating use of scheduling algorithm in alg.py.
+Functions for simulating use of scheduling algorithms on scheduling problems
+generated at random from selected distributions. Any (or all) of the multiple
+scheduling algorithms implemented in this software respository can be used
+in the simulations run by these functions.
 """
 
 from metrics import weighted_avg_metric, max_priority_metric
@@ -12,7 +15,6 @@ from dynamic import Dynamic
 from greedy import Greedy 
 import random
 
-rand.seed(31415926)
 
 def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
     """
@@ -107,30 +109,27 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
             elif prio_dist == 'beta':
                 # Sample from a beta distribution (high at 0 and 1, lower in between)
                 a = .1
-                b = .1 # paramters that give desired shape
+                b = .1 # parameters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = rand.beta(a, b)
                     prio.append(cur_prio)
             elif prio_dist == 'skew_right':
-                # Sample from a beta distribution (high at 0 and 1, lower in between)
                 a = 2
-                b = 8 # paramters that give desired shape
+                b = 8 # parameters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = rand.beta(a, b)
                     prio.append(cur_prio)
                     
             elif prio_dist == 'skew_left':
-                # Sample from a beta distribution (high at 0 and 1, lower in between)
                 a = 8
-                b = 2 # paramters that give desired shape
+                b = 2 # parameters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = rand.beta(a, b)
                     prio.append(cur_prio)
                     
             elif prio_dist == 'normal':
-                # Sample from a beta distribution (high at 0 and 1, lower in between)
                 mean = .5
-                stddev = .1 # paramters that give desired shape
+                stddev = .1 # parameters that give desired shape
                 for i in range(cur_num_tasks):
                     cur_prio = random.gauss(mean, stddev)
                     while(cur_prio > 1 or cur_prio < 0):
@@ -210,7 +209,7 @@ def plot(num_tasks_list, results, alg_names, metric_idx, metric_name):
     plt.grid()
     plt.show()
 
-def plot_avgs(num_tasks_list, results, alg_names, metric_idx, metric_name):
+def plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
     """
     Plots simulation results as they are returned by the simulate function.
 
@@ -238,43 +237,48 @@ def plot_avgs(num_tasks_list, results, alg_names, metric_idx, metric_name):
     plt.show()
 
 
-# Run simulations
-num_trials = 100
-#prio_dist = 'normal'
-prio_dist = 'skew_right'
-algs = [Yao, Dynamic, Greedy]
-alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm']
-num_tasks_list, results, avg_results = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
+def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
+    markers = ['gx', 'b+', 'r1']
+    if len(alg_names) > 3:
+        ValueError('need to add an extra matplotlib marker to the plotting functions')
+    min_num_tasks = min(num_tasks_list)
+    max_num_tasks = max(num_tasks_list)
+    num_tasks_list = []
+    for i in range(max_num_tasks - min_num_tasks+1):
+        num_tasks_list.append(min_num_tasks + i)
+    # For the given metric, we first establish which algorithm performed worst and use it as the baseline (1)
+    worstalg = -1
+    POSINF = 100**10
+    worstalgsum = POSINF
+    relevant_results = list(np.empty(len(alg_names)))
+    for algidx in range(len(alg_names)):
+        rel = np.array(avg_results[algidx][metric_idx])
+        res = np.sum(rel)
+        if res < worstalgsum:
+            worstalgsum = res
+            worstalg = algidx
+        relevant_results[algidx] = avg_results[algidx][metric_idx]
+    relevant_results = np.array(relevant_results)
 
-# Plot results
-metric_name = 'Sum of Precisions Weighted by Priorities'
-metric_idx = 0
-plot(num_tasks_list, results, alg_names, metric_idx, metric_name)
-metric_name = 'Precision of Maximum Priority Task'
-metric_idx = 1 # max priority
-plot(num_tasks_list, results, alg_names, metric_idx, metric_name)
+    # Compute metrics instead as a proportion of the worst alg's metric
+    for algidx in range(len(alg_names)):
+        if algidx == worstalg: continue
+        relevant_results[algidx] /= relevant_results[worstalg]
+    # So set the worst alg's metrics to 1
+    relevant_results[worstalg] /= relevant_results[worstalg]
 
-# Plot average results
-metric_name = 'Average Sum of Precisions Weighted by Priorities'
-metric_idx = 0
-plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name)
-metric_name = 'Average Precision of Maximum Priority Task'
-metric_idx = 1 # max priority
-plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name)
-
+    # Percent improvement by number of tasks (weighted sums)
+    for algidx in range(len(alg_names)):
+        plt.plot(num_tasks_list, -100 + 100 * relevant_results[algidx], markers[algidx], label=alg_names[algidx], linestyle='-')
+    plt.xlabel('Number of Tasks')
+    plt.ylabel('Percent Improvement')
+    title = 'Percent Improvement by '+metric_name
+    plt.title(title)
+    plt.legend(loc='lower right')
+    plt.grid()
+    plt.show()
 
 """
-# Percent improvement by number of tasks (weighted sums)
-plt.plot(u_num_tasks_list, 100 * np.array(u_our_initials) / np.array(u_yao_initials), 'bo', label='Uniform Priority')
-plt.plot(b_num_tasks_list, 100 * np.array(b_our_initials) / np.array(b_yao_initials), 'rx', label='Beta Priority')
-plt.xlabel('Number of Tasks')
-plt.ylabel('Percent Improvement')
-title = 'Percent Improvement (Weighted Sum of Precisions)'
-plt.title(title)
-plt.legend(loc='upper right')
-plt.grid()
-plt.show()
-
 # Percent improvement by number of tasks (maxs)
 plt.plot(u_num_tasks_list, 100 * np.array(u_our_maxs) / np.array(u_yao_maxs), 'bo', label='Uniform Priority')
 plt.plot(b_num_tasks_list, 100 * np.array(b_our_maxs) / np.array(b_yao_maxs), 'rx', label='Beta Priority')

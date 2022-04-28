@@ -325,10 +325,8 @@ class Yao():
         return depth_sched, reward_sched, time_sched
 
     def reward(self, prec, prio):
-        # NOTE this is a good place to play and have fun!
         """
-        Computes reward as a function of the precision and priority.
-        For prec, prio in [0,1], computes prec * prio.
+        Computes reward as a function of the precision, ignoring priority.
         """
 
         # Ignore priority
