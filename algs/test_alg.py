@@ -3,6 +3,7 @@ Tests for alg.py, the scheduling algorithm.
 
 At least at first, a short script that works through a toy example.
 Ultimately, we will have unit tests for exceptions and known results.
+Expected outputs at bottom.
 """
 
 from dynamic import Dynamic
@@ -53,3 +54,20 @@ a = Dynamic()
 a.sched(num_tasks, stages, time, prec, prio, dead, verbose)
 print("")
 
+"""
+Should give these outputs:
+
+SOLUTION:
+R:
+ 120 150 160 170 170
+ 20 60 60
+ 30 30 40 60
+Depth schedule that achieves reward 290   
+[3, 1, 3]  
+with corresponding rewards for each task:  
+[170, 60, 60]  
+corresponding times for each task:  
+[7, 4, 12]  
+or cumulatively:  
+[7, 11, 23]  
+"""

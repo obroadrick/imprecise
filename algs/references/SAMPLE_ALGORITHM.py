@@ -1,6 +1,10 @@
 """
 Sample algorithm class that can be used as a template for future 
 scheduling algorithms.
+
+An class with function sched of the form shown in this sample class
+is sufficient (as of 28 April 2022) for being used with this software 
+(in particular with the simulator) for comparison to other algorithms).
 """
 
 import numpy as np
