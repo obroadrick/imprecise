@@ -133,7 +133,7 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
                 for i in range(cur_num_tasks):
                     cur_prio = random.gauss(mean, stddev)
                     while(cur_prio > 1 or cur_prio < 0):
-                        cur_prio = rand.gauss(mean, stddev)                    
+                        cur_prio = random.gauss(mean, stddev)                    
                     prio.append(cur_prio)
 
             verbose = False
