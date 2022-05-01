@@ -73,7 +73,8 @@ class Greedy():
         time_used = mand_time
         for taskidx in highest_prio_tasks:
             # see how many layers we can fit in for this task (start at last layer since we have cumulative times)
-            for l in range(stages[taskidx]-1, 0, -1):
+            #for l in range(0, stages[taskidx], 1):
+            for l in range(stages[taskidx] - 1, 0, -1):
                 #need to subtract first, since times are cumulative; only want one time for each task, not for them to be added multiple times
                 if time_used + time[taskidx][l] - time[taskidx][0] <= deadline:
                     time_used += time[taskidx][l]

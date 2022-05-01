@@ -11,6 +11,7 @@ from tqdm import tqdm
 from yao import Yao
 from dynamic import Dynamic
 from greedy import Greedy 
+from greedyprime import GreedyPrime
 import random
 
 
@@ -21,11 +22,12 @@ rand.seed(31415926)
 # Run simulations
 num_trials = 1000
 #prio_dist = 'uniform'
-prio_dist = 'normal'
+prio_dist = 'uniform'
 #prio_dist = 'skew_right'
-algs = [Yao, Dynamic, Greedy]
-alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm']
-num_tasks_list, results, avg_results = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
+algs = [Yao, Dynamic, Greedy, GreedyPrime]
+alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm']
+num_tasks_list, results, avg_results, elapsed = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
+print(elapsed)
 
 """
 # Plot all results

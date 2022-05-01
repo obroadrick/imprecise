@@ -10,7 +10,7 @@ import math
 
 POS_INF = 10**10 
 
-class Greedy():
+class GreedyPrime():
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     # i.e. this is where the solution for the current optimal schedule gets stored
@@ -69,18 +69,100 @@ class Greedy():
         prio = np.array(prio)
         highest_prio_tasks = np.argsort(-1*prio)
 
-        # now for each task in order of highest priority, add as any layers as we can fit in
-        time_used = mand_time
-        for taskidx in highest_prio_tasks:
-            # see how many layers we can fit in for this task (start at last layer since we have cumulative times)
-            for l in range(stages[taskidx]-1, 0, -1):
-                #need to subtract first, since times are cumulative; only want one time for each task, not for them to be added multiple times
-                if time_used + time[taskidx][l] - time[taskidx][0] <= deadline:
-                    time_used += time[taskidx][l]
-                    time_used -= time[taskidx][0]
-                    depth_sched[taskidx] = l
-                    break
+        # get the tasks sorted in order of priority
+        prio = np.array(prio)
+        highest_prio_tasks = np.argsort(-1*prio)
 
+ 
+        # now we add as many optional layers as possible, in order of greedy heuristic(s)
+        time_used = mand_time
+        idx = 0
+        taskidx = highest_prio_tasks[idx]
+        nextheur = 0
+        left = 0
+        no_more = 0
+        while True:
+            # now we consider adding stage stag to the schedule for task taskidx
+            stag = depth_sched[taskidx] + 1
+            if stag >= stages[taskidx]:
+                # all the stages have been added already for this left-most task
+                left += 1
+                if left >= num_tasks:
+                    break
+                no_more += 1
+                idx = left
+                taskidx = highest_prio_tasks[idx]
+                continue
+            # if this stage doesn't fit in the schedule, move on
+            if time_used + (time[taskidx][stag] - time[taskidx][stag-1]) > deadline:
+                # couldn't add this stage since runtime would exceed the deadline
+                no_more += 1
+                if no_more >= num_tasks:
+                    # once all tasks can't fit another stage, we are done scheduling
+                    break
+                # if this was the leftmost, move that over one too
+                if idx == left:
+                    left += 1
+                    if left >= num_tasks:
+                        break
+                    idx = left
+                # otherwise just move over 1
+                else:
+                    idx += 1
+                if idx >= num_tasks:
+                    idx = left
+                taskidx = highest_prio_tasks[idx]
+                continue
+            #print('left:',left,'taskidx:',taskidx,'depth_sched:',depth_sched,'time_used:',time_used,'deadline:',deadline)
+            # check if this stage is better than going back to the beginning for a new sweep (nextheur)
+            curheur = heuristic(prec[taskidx][stag], prio[taskidx], time[taskidx][stag] - time[taskidx][stag-1])
+            if curheur >= nextheur or idx == left: #if back at left, we automatically add one stage
+                # add this to the depth schedule
+                depth_sched[taskidx] = stag
+                time_used += time[taskidx][stag] - time[taskidx][stag-1] 
+                #(next line assumes that stag-1 exists which is true when the first (mandatory stage) has been added)
+                #print('setting depth_sched[',taskidx,'] to',stag)
+                if idx == left:
+                    # need to note down the nextheur value for comparison during this sweep
+                    # but if the nextheur makes no sense since there aren't additional stages for this task, just move left over
+                    if stag + 1 >= stages[taskidx]:
+                        # just shift over left instead
+                        left += 1
+                        idx = left
+                        if idx >= num_tasks:
+                            break
+                        taskidx = highest_prio_tasks[left]
+                        continue
+                    #nextheur = heuristic(prec[nexttaskidx][nextstag+1], prio[nexttaskidx], time[nexttaskidx][nextstag+1])
+                    nextheur = heuristic(prec[taskidx][stag+1], prio[taskidx], time[taskidx][stag+1])
+                    """
+                    nextidx = idx
+                    nexttaskidx = highest_prio_tasks[nextidx]
+                    nextstag = stag
+                    done = False
+                    while nextstag + 1 >= stages[nexttaskidx]:
+                        nextidx += 1
+                        if nextidx >= num_tasks:
+                            done = True
+                            break
+                        nexttaskidx = highest_prio_tasks[idx]
+                        nextstag = depth_sched[nexttaskidx] + 1
+                    if done:
+                        break
+                    """
+                idx += 1
+                if idx >= num_tasks:
+                    # go back to the beginning for a new sweep
+                    idx = left
+                taskidx = highest_prio_tasks[idx]
+            else:
+                # go back to the beginning for a new sweep
+                idx = left
+                taskidx = highest_prio_tasks[idx]
         # Return the depth schedule (EDF is used for the server to dispatch tasks)
         self.depth_sched = depth_sched
         return depth_sched
+
+def heuristic(precision, priority, time):
+    """ Returns a heuristic for how the 'goodness' of a potential stage. """
+    return (precision * priority)**2 / time
