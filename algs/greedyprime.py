@@ -165,4 +165,4 @@ class GreedyPrime():
 
 def heuristic(precision, priority, time):
     """ Returns a heuristic for how the 'goodness' of a potential stage. """
-    return (precision * priority)**2 / time
+    return precision * priority / time
