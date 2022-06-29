@@ -12,6 +12,7 @@ from yao import Yao
 from dynamic import Dynamic
 from greedy import Greedy 
 from greedyprime import GreedyPrime
+from greedyKyle import GreedyKyle
 import random
 
 
@@ -24,8 +25,8 @@ num_trials = 1000
 #prio_dist = 'uniform'
 prio_dist = 'uniform'
 #prio_dist = 'skew_right'
-algs = [Yao, Dynamic, Greedy, GreedyPrime]
-alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm']
+algs = [Yao, Dynamic, Greedy, GreedyPrime, GreedyKyle]
+alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm', 'GreedyKyle Algorithm']
 num_tasks_list, results, avg_results, elapsed = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
 print(elapsed)
 

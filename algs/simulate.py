@@ -17,7 +17,7 @@ import random
 import time as systime
 
 
-def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
+def simulate(num_trials, algs, prio_dist='beta', num_tasks=(2,30)):
     """
     Generates num_trials 'random' scheduling problems and solves them using each of the algorithms
     in the list algs. 
@@ -243,7 +243,7 @@ def plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
                             this is the index of the metric to plot
         alg_names       - names of the algorithms (in same order as in results)
     """
-    markers = ['gx', 'b+', 'r1', 'm*']
+    markers = ['gx', 'b+', 'r1', 'm*', '']
     min_num_tasks = min(num_tasks_list)
     max_num_tasks = max(num_tasks_list)
     num_tasks_list = []
@@ -261,7 +261,7 @@ def plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
 
 
 def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
-    markers = ['gx', 'b+', 'r1', 'm*']
+    markers = ['gx', 'b+', 'r1', 'm*', 'yp']
     if len(alg_names) > 3:
         ValueError('need to add an extra matplotlib marker to the plotting functions')
     min_num_tasks = min(num_tasks_list)
@@ -302,7 +302,7 @@ def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric
     plt.show()
 
 def plot_times(num_tasks_list, elapsed, alg_names):
-    markers = ['gx', 'b+', 'r1', 'm*']
+    markers = ['gx', 'b+', 'r1', 'm*', 'yp']
     if len(alg_names) > 3:
         ValueError('need to add an extra matplotlib marker to the plotting functions')
     min_num_tasks = min(num_tasks_list)
