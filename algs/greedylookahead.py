@@ -10,7 +10,7 @@ import math
 
 POS_INF = 10**10 
 
-class GreedyPrime():
+class GreedyLookAhead():
     # The maintained list of optimal depths. 
     # That is, depth_sched[i] is the number of stages to be run for task i in the selected schedule.
     # i.e. this is where the solution for the current optimal schedule gets stored
@@ -82,15 +82,15 @@ class GreedyPrime():
         left = 0
         no_more = 0
         # before looping around the search space, let's build up a table of heuristic evaluations of each stage
-        """
-        heurTable = [];
+        heur_table = [];
         for i in range(num_tasks):
-            heurTable.append([])
+            heur_table.append([])
             for j in range(stages[i]):
                 if j > 0:
-                    heurTable[i].append(heuristic(prec[i][j], priority[i], time[i][j] - time[i][j-1]):
+                    heur_table[i].append(heuristic(prec[i][j] - prec[i][j-1], prio[i], time[i][j] - time[i][j-1]))
                 else:
-        """
+                    heur_table[i].append(heuristic(prec[i][j], prio[i], time[i][j]))
+        # now never need to bother to compute the heuristic values but instead can use that look up table
         while True:
             # now we consider adding stage stag to the schedule for task taskidx
             stag = depth_sched[taskidx] + 1
@@ -128,10 +128,24 @@ class GreedyPrime():
             curheur = heuristic(prec[taskidx][stag] - prec[taskidx][stag-1], prio[taskidx], time[taskidx][stag] - time[taskidx][stag-1])
             # instead of just checking the next stage's heuristic value, let's check the next k stages
             # to take advantage of the still-constant-time k-lookahead technique
+            # we will continue sweeping right if the average of the next 5 is better than starting a new sweep
             k = 5
-            #for i in range(k):
-            #    heurTable[
-            if curheur >= nextheur or idx == left: #if back at left, we automatically add one stage
+            sumklook = 0
+            counter = 0
+            i = 0
+            while counter < 5:
+                if idx + i >= len(highest_prio_tasks):
+                    break
+                task_idx_klook = highest_prio_tasks[idx + i];
+                if depth_sched[task_idx_klook] + 1 > stages[task_idx_klook]:
+                    break
+                sumklook += heur_table[task_idx_klook][depth_sched[taskidx] + 1]
+                counter += 1
+                i += 1
+            avgheur = sumklook / counter
+            proportionReq = 1
+            #print(avgheur, nextheur)
+            if avgheur >= proportionReq * nextheur or idx == left: #if back at left, we automatically add one stage
                 # add this to the depth schedule
                 depth_sched[taskidx] = stag
                 time_used += time[taskidx][stag] - time[taskidx][stag-1] 
@@ -149,7 +163,7 @@ class GreedyPrime():
                         taskidx = highest_prio_tasks[left]
                         continue
                     #nextheur = heuristic(prec[nexttaskidx][nextstag+1], prio[nexttaskidx], time[nexttaskidx][nextstag+1])
-                    nextheur = heuristic(prec[taskidx][stag+1] - prec[taskidx][stag], prio[taskidx], time[taskidx][stag+1] - time[taskidx][stag+1])
+                    nextheur = heuristic(prec[taskidx][stag+1] - prec[taskidx][stag], prio[taskidx], time[taskidx][stag+1] - time[taskidx][stag])
                     """
                     nextidx = idx
                     nexttaskidx = highest_prio_tasks[nextidx]

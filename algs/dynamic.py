@@ -45,7 +45,7 @@ class Dynamic():
         # Give some default values to other members
         self.S = None
         self.P = None
-        self.delta = .01
+        self.delta = .1
 
     def sched(self, num_tasks, stages, time, prec, prio, dead, verbose=False):
         """
