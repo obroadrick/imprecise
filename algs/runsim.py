@@ -14,6 +14,7 @@ from greedy import Greedy
 from greedyprime import GreedyPrime
 from greedylookahead import GreedyLookAhead
 from newgreedy import NewGreedy
+from greedyKyle import GreedyKyle
 import random
 
 
@@ -34,6 +35,8 @@ algs = [Dynamic, Greedy, GreedyPrime, NewGreedy]
 #alg_names = ['Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm']
 #alg_names = ['Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm', 'Greedy With Look Ahead'];
 alg_names = ['Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm', 'New Greedy'];
+#algs = [Yao, Dynamic, Greedy, GreedyPrime, GreedyKyle]
+#alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm', 'GreedyKyle Algorithm']
 num_tasks_list, results, avg_results, elapsed = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
 print(elapsed)
 

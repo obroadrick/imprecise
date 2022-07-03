@@ -96,16 +96,28 @@ class GreedyPrime():
             stag = depth_sched[taskidx] + 1
             if stag >= stages[taskidx]:
                 # all the stages have been added already for this left-most task
+
+                #### Kyle Comment: How do we know that we are at the left-most task? did we not just run it back to the top?
+                #### Does this mean that we accidentally start to consider tasks later down the priority chain?
+
                 left += 1
                 if left >= num_tasks:
                     break
                 no_more += 1
                 idx = left
                 taskidx = highest_prio_tasks[idx]
+
+                #### Kyle Comment: does this continue make it so we reset if something later on does not fit, but reset one more to right?
+                #### Basically a continuation of the concern above
+
                 continue
             # if this stage doesn't fit in the schedule, move on
             if time_used + (time[taskidx][stag] - time[taskidx][stag-1]) > deadline:
                 # couldn't add this stage since runtime would exceed the deadline
+
+                #### Kyle Comment: This scares me that we may be recounting tasks that have been addressed as "no_more" since if it is not the left,
+                #### it would still be in the queue on a later iteration
+                
                 no_more += 1
                 if no_more >= num_tasks:
                     # once all tasks can't fit another stage, we are done scheduling
