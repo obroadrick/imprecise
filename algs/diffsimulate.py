@@ -17,7 +17,7 @@ import random
 import time as systime
 
 
-def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
+def diffsimulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
     """
     Generates num_trials 'random' scheduling problems and solves them using each of the algorithms
     in the list algs. 
@@ -175,10 +175,10 @@ def simulate(num_trials, algs, prio_dist='uniform', num_tasks=(2,30)):
                     print(i,":",dead[i])
                 print("\n\nSOLUTION:")
 
-            # Instantiate objects for each of the algorithms
+            # get list of already instantiated objects for each of the algorithms
             algorithms = []
             for alg in algs:
-                algorithms.append(alg())
+                algorithms.append(alg)
 
             for i, alg in enumerate(algorithms):
                 # Call sched for these inputs (for this scheduling problem, run the algorithm)

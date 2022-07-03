@@ -3,6 +3,7 @@ This script runs simulations of imprecise computation model scheduling.
 """
 
 from simulate import simulate, plot, plot_avgs, plot_improvements
+from diffsimulate import diffsimulate, plot, plot_avgs, plot_improvements
 from metrics import weighted_avg_metric, max_priority_metric
 import numpy as np
 from numpy import random as rand
@@ -30,11 +31,11 @@ prio_dist = 'uniform'
 #algs = [Yao, Dynamic, Greedy, GreedyPrime]
 #alg_names = ['Unmodified Dynamic Programming (Yao)', 'Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm']
 #algs = [Dynamic, Greedy, GreedyPrime]
-algs = [Dynamic, Greedy, GreedyPrime, NewGreedy]
+algs = [Dynamic(), Greedy(), GreedyPrime(), NewGreedy()]
 #alg_names = ['Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm']
 #alg_names = ['Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm', 'Greedy With Look Ahead'];
 alg_names = ['Dynamic Programming with Modified Reward', 'Greedy Algorithm', 'GreedyPrime Algorithm', 'New Greedy'];
-num_tasks_list, results, avg_results, elapsed = simulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
+num_tasks_list, results, avg_results, elapsed = diffsimulate(num_trials, algs, prio_dist=prio_dist, num_tasks=(2,30))
 print(elapsed)
 
 """
