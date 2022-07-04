@@ -221,7 +221,7 @@ def plot(num_tasks_list, results, alg_names, metric_idx, metric_name):
                             this is the index of the metric to plot
         alg_names       - names of the algorithms (in same order as in results)
     """
-    markers = ['gx', 'b+', 'r1', 'm*']
+    markers = ['gx', 'b+', 'r1', 'm*', 'y>', 'k<']
     for idx, algname in enumerate(alg_names):
         plt.plot(num_tasks_list, results[idx][metric_idx], markers[idx], label=algname)
     plt.xlabel('Number of Tasks')
@@ -244,6 +244,7 @@ def plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
         alg_names       - names of the algorithms (in same order as in results)
     """
     markers = ['gx', 'b+', 'r1', 'm*']
+    markers = ['gx', 'b+', 'r1', 'm*', 'y>', 'k<']
     min_num_tasks = min(num_tasks_list)
     max_num_tasks = max(num_tasks_list)
     num_tasks_list = []
@@ -262,6 +263,7 @@ def plot_avgs(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
 
 def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric_name):
     markers = ['gx', 'b+', 'r1', 'm*']
+    markers = ['gx', 'b+', 'r1', 'm*', 'y>', 'k<']
     if len(alg_names) > 3:
         ValueError('need to add an extra matplotlib marker to the plotting functions')
     min_num_tasks = min(num_tasks_list)
@@ -301,49 +303,18 @@ def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric
     plt.grid()
     plt.show()
 
-def plot_times(num_tasks_list, elapsed, alg_names):
+def plot_times(num_tasks_list, elapsed, alg_names, num_trials):
     markers = ['gx', 'b+', 'r1', 'm*']
-    if len(alg_names) > 3:
-        ValueError('need to add an extra matplotlib marker to the plotting functions')
-    min_num_tasks = min(num_tasks_list)
-    max_num_tasks = max(num_tasks_list)
-    num_tasks_list = []
-    for i in range(max_num_tasks - min_num_tasks+1):
-        num_tasks_list.append(min_num_tasks + i)
-    # For the given metric, we first establish which algorithm performed worst and use it as the baseline (1)
-    worstalg = -1
-    POSINF = 10**10
-    worstalgsum = POSINF
-    relevant_results = list(np.empty(len(alg_names)))
-    for algidx in range(len(alg_names)):
-        rel = np.array(avg_results[algidx][metric_idx])
-        res = np.sum(rel)
-        if res < worstalgsum:
-            worstalgsum = res
-            worstalg = algidx
-        relevant_results[algidx] = np.copy(avg_results[algidx][metric_idx])
-    relevant_results = np.array(relevant_results)
-
-    # Compute metrics instead as a proportion of the worst alg's metric
-    for algidx in range(len(alg_names)):
-        if algidx == worstalg: continue
-        relevant_results[algidx] /= relevant_results[worstalg]
-    # So set the worst alg's metrics to 1
-    relevant_results[worstalg] /= relevant_results[worstalg]
-
-    # Percent improvement by number of tasks (weighted sums)
-    for algidx in range(len(alg_names)):
-        plt.plot(num_tasks_list, -100 + 100 * relevant_results[algidx], markers[algidx], label=alg_names[algidx], linestyle='-')
-    plt.xlabel('Number of Tasks')
-    plt.ylabel('Percent Improvement')
-    title = 'Percent Improvement by '+metric_name
+    markers = ['gx', 'b+', 'r1', 'm*', 'y>', 'k<']
+    avg_elapsed = elapsed / num_trials
+    plt.bar(alg_names, avg_elapsed)
+    plt.ylabel('Average Elapsed Time')
+    title = 'Average Time Per Scheduling Problem'
     plt.title(title)
-    plt.legend(loc='lower right')
     plt.grid()
     plt.show()
 
    
-
 """
 # Percent improvement by number of tasks (maxs)
 plt.plot(u_num_tasks_list, 100 * np.array(u_our_maxs) / np.array(u_yao_maxs), 'bo', label='Uniform Priority')

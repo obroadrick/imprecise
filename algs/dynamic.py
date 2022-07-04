@@ -17,7 +17,7 @@ import math
 
 POS_INF = 10**10 
 
-class Dynamic():
+class Dynamic:
     """
     The algorithm class maintains two tables S and P where:
         S[i][r] is the depth to which task i should be computed to achieve at least 
@@ -37,7 +37,7 @@ class Dynamic():
     # i.e. this is where the solution for the current optimal schedule gets stored
     depth_sched = []
 
-    def __init__(self):
+    def __init__(self,delta=.01):
         """
         The algorithm class will populate the S and P solution tables once 
         tasks are passed (ie. sched is called).
@@ -45,7 +45,7 @@ class Dynamic():
         # Give some default values to other members
         self.S = None
         self.P = None
-        self.delta = .1
+        self.delta = delta
 
     def sched(self, num_tasks, stages, time, prec, prio, dead, verbose=False):
         """
