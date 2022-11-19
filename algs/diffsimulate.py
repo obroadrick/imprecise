@@ -297,13 +297,20 @@ def plot_improvements(num_tasks_list, avg_results, alg_names, metric_idx, metric
         plt.plot(num_tasks_list, -100 + 100 * relevant_results[algidx], markers[algidx], label=alg_names[algidx], linestyle='-')
     plt.xlabel('Number of Tasks')
     plt.ylabel('Percent Improvement')
-    title = 'Percent Improvement by '+metric_name
+    title = 'Percent Improvement '+metric_name
     plt.title(title)
+    #get handles and labels
+    #handles, labels = plt.gca().get_legend_handles_labels()
+    #specify order of items in legend
+    #order = [0,1]
+    #add legend to plot
+    #plt.legend([handles[idx] for idx in order],[labels[idx] for idx in order], loc='upper right')
     plt.legend(loc='lower right')
     plt.grid()
+    plt.tight_layout()
     plt.show()
 
-def plot_times(num_tasks_list, elapsed, alg_names, num_trials):
+def plot_times(num_tasks_list, elapsed, alg_names, num_trials, scale='normal'):
     markers = ['gx', 'b+', 'r1', 'm*']
     markers = ['gx', 'b+', 'r1', 'm*', 'y>', 'k<']
     avg_elapsed = elapsed / num_trials
@@ -311,7 +318,9 @@ def plot_times(num_tasks_list, elapsed, alg_names, num_trials):
     plt.ylabel('Average Elapsed Time')
     title = 'Average Time Per Scheduling Problem'
     plt.title(title)
+    plt.tight_layout()
     plt.grid()
+    plt.yscale("log")
     plt.show()
 
    
